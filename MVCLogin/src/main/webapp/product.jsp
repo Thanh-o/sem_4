@@ -100,7 +100,7 @@
                     <form action="product" method="post" style="display:inline;">
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="id" value="<%= product.getId() %>">
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');>
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">
                             <i class="fa fa-trash"></i> Delete
                         </button>
                     </form>

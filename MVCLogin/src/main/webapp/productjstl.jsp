@@ -6,52 +6,14 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page import="model.Product" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.sql.SQLException" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%
     if (session.getAttribute("username") == null) {
         response.sendRedirect("login.jsp");
     }
 %>
-<%
-    String action = request.getParameter("action");
-
-    if ("add".equals(action)) {
-        String name = request.getParameter("name");
-        int quantity = Integer.parseInt(request.getParameter("quantity"));
-        Product.addProduct(new Product(0,name, quantity));
-        response.sendRedirect("productjstl.jsp");
-        return;
-    }
-
-    if ("delete".equals(action)) {
-        int id = Integer.parseInt(request.getParameter("id"));
-        Product.deleteProduct(id);
-        response.sendRedirect("productjstl.jsp");
-        return;
-    }
-
-    if ("update".equals(action)) {
-        int id = Integer.parseInt(request.getParameter("id"));
-        String name = request.getParameter("name");
-        int quantity = Integer.parseInt(request.getParameter("quantity"));
-        Product.updateProduct(new Product(id, name, quantity));
-        response.sendRedirect("productjstl.jsp");
-        return;
-    }
-
-    List<Product> products = null;
-    try {
-        products = Product.getAllProducts();
-    } catch (SQLException | ClassNotFoundException e) {
-        e.printStackTrace();
-    }
-    request.setAttribute("productList", products);
-
-%>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,57 +33,144 @@
 
 <div class="container mt-4">
     <div class="card shadow-sm p-4">
-<h4 class="mt-4">Add Product</h4>
-<form action="productjstl.jsp" method="post" class="mb-3">
-    <input type="hidden" name="action" value="add">
-    Name:
-    <input type="text" name="name"  required>
-    Quantity:
-    <input type="number" name="quantity"  required>
+        <sql:setDataSource var="db" driver="com.mysql.cj.jdbc.Driver"
+                           url="jdbc:mysql://localhost:3306/fptaptech2025"
+                           user="root" password=""/>
+        <%--READ--%>
+        <sql:query var="result" dataSource="${db}">
+            SELECT * FROM products;
+        </sql:query>
+        <%--INSERT, DELETE,EDIT dung sql update--%>
+        <%--    INSERT--%>
+        <c:if test="${param.action == 'add'}">
+            <sql:update dataSource="${db}" var="add">
+                INSERT INTO products (name, quantity) VALUES (?, ?);
+                <sql:param value="${param.name}" />
+                <sql:param value="${param.quantity}" />
+            </sql:update>
 
-    <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i> Add New</button>
-</form>
+            <c:choose>
+                <c:when test="${add >= 1}">
+                    <% response.sendRedirect("productjstl.jsp?message=added"); %>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="erroradd" value="Error add new." />
+                </c:otherwise>
+            </c:choose>
+        </c:if>
 
-<%
-    if (request.getParameter("id") != null) {
-%>
-<h4>Update Product</h4>
-<form action="productjstl.jsp" method="post" class="mb-3">
-    <input type="hidden" name="action" value="update">
-    <input type="hidden" name="id" value="<%= request.getParameter("id") %>">
-    Name:
-    <input type="text" name="name" value="<%= request.getParameter("name") %>"  required>
-    Quantity:
-    <input type="number" name="quantity" value="<%= request.getParameter("quantity") %>"  required>
+        <c:if test="${param.message == 'added'}">
+            <p style="color: green;">Added new Successfully!</p>
+        </c:if>
 
-    <button type="submit" class="btn btn-primary"><i class="fa fa-edit"></i> Update</button>
-</form>
-<%
-    }
-%>
+        <c:if test="${not empty erroradd}">
+            <p style="color: red;">${erroradd}</p>
+        </c:if>
+        <%--    UPDATE--%>
+        <c:if test="${param.action == 'update'}">
+            <sql:update dataSource="${db}" var="update">
+                UPDATE products SET name = ?, quantity = ? WHERE id = ?;
+                <sql:param value="${param.name}" />
+                <sql:param value="${param.quantity}" />
+                <sql:param value="${param.id}" />
+            </sql:update>
 
-<h2>Product List</h2>
+            <c:choose>
+                <c:when test="${update >= 1}">
+                    <% response.sendRedirect("productjstl.jsp?message=updated"); %>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="erroru" value="Error update!" />
+                </c:otherwise>
+            </c:choose>
+        </c:if>
+
+        <c:if test="${param.message == 'updated'}">
+            <p style="color: green;">Updated Successfully!</p>
+        </c:if>
+
+        <c:if test="${not empty erroru}">
+            <p style="color: red;">${erroru}</p>
+        </c:if>
+        <%--DELETE--%>
+        <c:if test="${param.action == 'delete'}">
+            <sql:update dataSource="${db}" var="delete">
+                DELETE FROM products WHERE id = ?;
+                <sql:param value="${param.id}" />
+            </sql:update>
+
+            <c:choose>
+                <c:when test="${delete >= 1}">
+                    <% response.sendRedirect("productjstl.jsp?message=deleted"); %>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="errorMessage" value="Delete failed product! Maybe the product doesn't exist." />
+                </c:otherwise>
+            </c:choose>
+        </c:if>
+
+        <c:if test="${param.message == 'deleted'}">
+            <p style="color: green;">Delete Successfully!</p>
+        </c:if>
+
+        <c:if test="${not empty errorMessage}">
+            <p style="color: red;">${errorMessage}</p>
+        </c:if>
+
+        <h4>Add Product</h4>
+        <form action="productjstl.jsp" method="post" class="mb-3">
+            <input type="hidden" name="action" value="add">
+            Name:
+            <input type="text" name="name" required>
+            Quantity:
+            <input type="number" name="quantity" required>
+            <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i> Add New</button>
+        </form>
+
+        <c:if test="${param.action == 'edit'}">
+            <h4>Update Product</h4>
+            <form action="productjstl.jsp" method="post" class="mb-3">
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="id" value="${param.id}">
+                Name:
+                <input type="text" name="name" value="${param.name}" required>
+                Quantity:
+                <input type="number" name="quantity" value="${param.quantity}" required>
+                <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Update</button>
+            </form>
+        </c:if>
+
+        <h4>Product List</h4>
         <table class="table table-hover table-bordered">
             <thead class="thead-dark">
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Quantity</th>
-        <th>Action</th>
-    </tr>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Action</th>
+            </tr>
             </thead>
-    <c:forEach var="product" items="${productList}">
-        <tr>
-            <td>${product.id}</td>
-            <td>${product.name}</td>
-            <td>${product.quantity}</td>
-            <td>
-                <a href="productjstl.jsp?action=edit&id=${product.id}&name=${product.name}&quantity=${product.quantity}" class="btn btn-warning btn-sm">Edit</a> |
-                <a href="productjstl.jsp?action=delete&id=${product.id}" onclick="return confirm('Are you sure you want to delete this product?');" class="btn btn-danger btn-sm">Delete</a>
-            </td>
-        </tr>
-    </c:forEach>
-</table>
+            <c:forEach var="product" items="${result.rows}">
+                <tr>
+                    <td>${product.id}</td>
+                    <td>${product.name}</td>
+                    <td>${product.quantity}</td>
+                    <td>
+                        <a href="productjstl.jsp?action=edit&id=${product.id}&name=${product.name}&quantity=${product.quantity}"
+                           class="btn btn-warning btn-sm">
+                            <i class="fa fa-edit"></i> Edit
+                        </a>
+
+                        <a href="productjstl.jsp?action=delete&id=${product.id}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Are you confirm delete?');">
+                            <i class="fa fa-trash"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+            </c:forEach>
+
+        </table>
     </div>
 </div>
 

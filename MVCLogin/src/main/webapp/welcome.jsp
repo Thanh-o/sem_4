@@ -43,7 +43,7 @@
     <div class="container-fluid">
         <span class="navbar-brand mb-0 h1">Welcome, <%= session.getAttribute("username") %></span>
         <form method="post" class="d-inline">
-            <button type="submit" name="logout" class="btn btn-danger">Logout</button>
+            <button type="submit" name="logout" class="btn btn-danger" onclick="return confirm('Are you sure you want to logout?');">Logout</button>
         </form>
     </div>
 </nav>
