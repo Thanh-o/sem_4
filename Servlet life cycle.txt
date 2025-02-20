@@ -1,0 +1,17 @@
+Servlet life cycle
+
+         request
+browser ----------> servlet
+                    init():khởi tạo 1 cặp đối tượng 1 lần duy nhất cặp                       
+                                        objects(request, response)
+                    |
+                    >
+                    Service():thiết lập cấu hình                   |
+                   >
+                  doPost() / doGet()
+                  |
+                  >
+                 Biz()...(optional)
+                 |
+                 >
+                destroy()
