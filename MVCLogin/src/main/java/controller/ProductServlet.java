@@ -6,6 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -23,24 +24,30 @@ public class ProductServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
     }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
         try {
             if ("add".equals(action)) {
                 String name = req.getParameter("name");
-                int quantity = Integer.parseInt(req.getParameter("quantity"));
-                Product.addProduct(new Product(0, name, quantity));
+                int price = Integer.parseInt(req.getParameter("price"));
+                String description = req.getParameter("description");
+
+                Product.addProduct(new Product(0, name, price, description));
             } else if ("update".equals(action)) {
                 int id = Integer.parseInt(req.getParameter("id"));
                 String name = req.getParameter("name");
-                int quantity = Integer.parseInt(req.getParameter("quantity"));
-                Product.updateProduct(new Product(id, name, quantity));
+                int price = Integer.parseInt(req.getParameter("price"));
+                String description = req.getParameter("description");
+
+                Product.updateProduct(new Product(id, name, price, description));
             } else if ("delete".equals(action)) {
                 int id = Integer.parseInt(req.getParameter("id"));
                 Product.deleteProduct(id);
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException | NumberFormatException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
         resp.sendRedirect("product.jsp");

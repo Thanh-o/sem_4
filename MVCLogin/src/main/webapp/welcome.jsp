@@ -1,4 +1,4 @@
-<%--
+<%@ page import="util.JwtUtil" %><%--
   Created by IntelliJ IDEA.
   User: Nguyen Trung Thanh
   Date: 13/02/2025
@@ -6,56 +6,77 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="jakarta.servlet.http.Cookie, util.JwtUtil" %>
 <%
-    if (session.getAttribute("username") == null) {
-        response.sendRedirect("login.jsp");
-        return;
+    String username = null;
+    String token = null;
+
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie cookie : cookies) {
+            if ("jwt_token".equals(cookie.getName())) {
+                token = cookie.getValue();
+                username = JwtUtil.validateToken(token);
+            }
+        }
     }
 
-    if ("POST".equalsIgnoreCase(request.getMethod()) && request.getParameter("logout") != null) {
-        session.invalidate();
+    if (username == null) {
         response.sendRedirect("login.jsp");
         return;
     }
 %>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Welcome</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #f0f2f5;
         }
         .container {
-            margin-top: 50px;
+            margin-top: 80px;
         }
         .card {
-            padding: 20px;
-            border-radius: 10px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        .navbar {
+            padding: 10px 20px;
+        }
+        .btn-custom {
+            border-radius: 8px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+        .btn-custom:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
 <nav class="navbar navbar-dark bg-dark">
-    <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">Welcome, <%= session.getAttribute("username") %></span>
-        <form method="post" class="d-inline">
-            <button type="submit" name="logout" class="btn btn-danger" onclick="return confirm('Are you sure you want to logout?');">Logout</button>
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <span class="navbar-brand mb-0 h1">👋 Welcome, <%= username %></span>
+        <form method="get" action="logout">
+            <button type="submit" class="btn btn-danger btn-custom" onclick="return confirm('Are you sure you want to logout?');">
+                <i class="fa fa-sign-out-alt"></i> Logout
+            </button>
         </form>
     </div>
 </nav>
 
-<div class="container">
-    <div class="card shadow-sm">
-        <h2 class="text-center">Welcome, <%= session.getAttribute("username") %>!</h2>
-        <div class="text-center mt-3">
-            <a href="product.jsp" class="btn btn-primary">View Products</a>
-        </div>
-        <div class="text-center mt-3">
-            <a href="productjstl.jsp" class="btn btn-primary">View Products Jstl</a>
+<div class="container d-flex justify-content-center">
+    <div class="card text-center">
+        <h2>Welcome, <%= username %>! 🎉</h2>
+        <p class="text-muted">Explore our products below</p>
+        <div class="mt-4">
+            <a href="product.jsp" class="btn btn-primary btn-custom">Products</a>
+            <a href="productjstl.jsp" class="btn btn-secondary btn-custom">Products JSTL</a>
         </div>
     </div>
 </div>

@@ -8,69 +8,110 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <%@ page import="model.Product" %>
-<%
-    if (session.getAttribute("username") == null) {
-        response.sendRedirect("login.jsp");
-    }
-%>
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Product</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Product Management</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .card {
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .navbar {
+            padding: 10px 20px;
+        }
+        .btn-custom {
+            border-radius: 8px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+        .btn-custom:hover {
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="welcome.jsp">Home</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <a class="navbar-brand" href="welcome.jsp"><i class="fa fa-home"></i> Home</a>
+        <form method="get" action="logout">
+            <button type="submit" class="btn btn-danger btn-custom" onclick="return confirm('Are you sure you want to logout?');">
+                <i class="fa fa-sign-out-alt"></i> Logout
+            </button>
+        </form>
+    </div>
 </nav>
 
-<div class="container mt-4">
-    <div class="card shadow-sm p-4">
+<!-- Main Container -->
+<div class="container d-flex justify-content-center">
+    <div class="card w-100">
+        <h2 class="text-center mb-4">Manage Products 🛒</h2>
 
         <!-- Add Product Form -->
-        <h4 class="mt-4">Add Product</h4>
-        <form action="product" method="post" class="mb-3">
+        <h4>Add Product</h4>
+        <form action="product" method="post" class="row g-3">
             <input type="hidden" name="action" value="add">
-                Name:
-                <input type="text" name="name"  required>
-                Quantity:
-                <input type="number" name="quantity"  required>
-
-            <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i> Add New</button>
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="name" placeholder="Name" required>
+            </div>
+            <div class="col-md-4">
+                <input type="number" class="form-control" name="price" placeholder="Price" required>
+            </div>
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="description" placeholder="Descrition">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-success btn-custom w-100"><i class="fa fa-plus"></i> Add New</button>
+            </div>
         </form>
 
         <!-- Update Product Form -->
         <%
             if (request.getParameter("id") != null) {
         %>
-        <h4>Update Product</h4>
-        <form action="product" method="post" class="mb-3">
+        <h4 class="mt-4">Update Product</h4>
+        <form action="product" method="post" class="row g-3">
             <input type="hidden" name="action" value="update">
             <input type="hidden" name="id" value="<%= request.getParameter("id") %>">
-              Name:
-                <input type="text" name="name" value="<%= request.getParameter("name") %>"  required>
-             Quantity:
-                <input type="number" name="quantity" value="<%= request.getParameter("quantity") %>"  required>
-
-            <button type="submit" class="btn btn-primary"><i class="fa fa-edit"></i> Update</button>
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="name" value="<%= request.getParameter("name") %>" required>
+            </div>
+            <div class="col-md-4">
+                <input type="number" class="form-control" name="price" value="<%= request.getParameter("price") %>" required>
+            </div>
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="description" value="<%= request.getParameter("description") %>" >
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary btn-custom w-100"><i class="fa fa-edit"></i> Update</button>
+            </div>
         </form>
         <%
             }
         %>
 
         <!-- Product List Table -->
-        <h4>Product List</h4>
-        <table class="table table-hover table-bordered">
-            <thead class="thead-dark">
+        <h4 class="mt-4">Product List</h4>
+        <table class="table table-hover table-bordered text-center ">
+            <thead class="table-dark">
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Quantity</th>
+                <th>Price</th>
+                <th>Description</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -87,24 +128,29 @@
             <tr>
                 <td><%= product.getId() %></td>
                 <td><%= product.getName() %></td>
-                <td><%= product.getQuantity() %></td>
+                <td>$ <%= product.getPrice() %></td>
+                <td><%= product.getDescription() %></td>
                 <td>
-                    <form action="product" method="get" style="display:inline;">
-                        <input type="hidden" name="id" value="<%= product.getId() %>">
-                        <input type="hidden" name="name" value="<%= product.getName() %>">
-                        <input type="hidden" name="quantity" value="<%= product.getQuantity() %>">
-                        <button type="submit" class="btn btn-warning btn-sm">
-                            <i class="fa fa-edit"></i> Edit
-                        </button>
-                    </form>
-                    <form action="product" method="post" style="display:inline;">
-                        <input type="hidden" name="action" value="delete">
-                        <input type="hidden" name="id" value="<%= product.getId() %>">
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">
-                            <i class="fa fa-trash"></i> Delete
-                        </button>
-                    </form>
+                    <div class="d-flex justify-content-center">
+                        <form action="product" method="get">
+                            <input type="hidden" name="id" value="<%= product.getId() %>">
+                            <input type="hidden" name="name" value="<%= product.getName() %>">
+                            <input type="hidden" name="price" value="<%= product.getPrice() %>">
+                            <input type="hidden" name="description" value="<%= product.getDescription() %>">
+                            <button type="submit" class="btn btn-warning btn-sm mx-2">
+                                <i class="fa fa-edit"></i> Edit
+                            </button>
+                        </form>
+                        <form action="product" method="post">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="id" value="<%= product.getId() %>">
+                            <button type="submit" class="btn btn-danger btn-sm mx-2" onclick="return confirm('Are you sure you want to delete this product?');">
+                                <i class="fa fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
                 </td>
+
             </tr>
             <%
                     }
@@ -117,9 +163,9 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Bootstrap Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
