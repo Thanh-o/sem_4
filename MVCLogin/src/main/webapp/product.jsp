@@ -6,16 +6,13 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.List" %>
-<%@ page import="model.Product" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Product Management</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <style>
         body {
             background-color: #f0f2f5;
@@ -71,7 +68,7 @@
                 <input type="number" class="form-control" name="price" placeholder="Price" required>
             </div>
             <div class="col-md-5">
-                <input type="text" class="form-control" name="description" placeholder="Descrition">
+                <input type="text" class="form-control" name="description" placeholder="Description">
             </div>
             <div class="col-md-3">
                 <button type="submit" class="btn btn-success btn-custom w-100"><i class="fa fa-plus"></i> Add New</button>
@@ -79,33 +76,29 @@
         </form>
 
         <!-- Update Product Form -->
-        <%
-            if (request.getParameter("id") != null) {
-        %>
-        <h4 class="mt-4">Update Product</h4>
-        <form action="product" method="post" class="row g-3">
-            <input type="hidden" name="action" value="update">
-            <input type="hidden" name="id" value="<%= request.getParameter("id") %>">
-            <div class="col-md-5">
-                <input type="text" class="form-control" name="name" value="<%= request.getParameter("name") %>" required>
-            </div>
-            <div class="col-md-4">
-                <input type="number" class="form-control" name="price" value="<%= request.getParameter("price") %>" required>
-            </div>
-            <div class="col-md-5">
-                <input type="text" class="form-control" name="description" value="<%= request.getParameter("description") %>" >
-            </div>
-            <div class="col-md-3">
-                <button type="submit" class="btn btn-primary btn-custom w-100"><i class="fa fa-edit"></i> Update</button>
-            </div>
-        </form>
-        <%
-            }
-        %>
+        <c:if test="${not empty param.id}">
+            <h4 class="mt-4">Update Product</h4>
+            <form action="product" method="post" class="row g-3">
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="id" value="${param.id}">
+                <div class="col-md-5">
+                    <input type="text" class="form-control" name="name" value="${param.name}" required>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" class="form-control" name="price" value="${param.price}" required>
+                </div>
+                <div class="col-md-5">
+                    <input type="text" class="form-control" name="description" value="${param.description}">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary btn-custom w-100"><i class="fa fa-edit"></i> Update</button>
+                </div>
+            </form>
+        </c:if>
 
         <!-- Product List Table -->
         <h4 class="mt-4">Product List</h4>
-        <table class="table table-hover table-bordered text-center ">
+        <table class="table table-hover table-bordered text-center">
             <thead class="table-dark">
             <tr>
                 <th>ID</th>
@@ -116,48 +109,42 @@
             </tr>
             </thead>
             <tbody>
-            <%
-                try {
-                    List<Product> products = (List<Product>) request.getAttribute("products");
-                    if (products == null) {
-                        response.sendRedirect("product");
-                        return;
-                    }
-                    for (Product product : products) {
-            %>
-            <tr>
-                <td><%= product.getId() %></td>
-                <td><%= product.getName() %></td>
-                <td>$ <%= product.getPrice() %></td>
-                <td><%= product.getDescription() %></td>
-                <td>
-                    <div class="d-flex justify-content-center">
-                        <form action="product" method="get">
-                            <input type="hidden" name="id" value="<%= product.getId() %>">
-                            <input type="hidden" name="name" value="<%= product.getName() %>">
-                            <input type="hidden" name="price" value="<%= product.getPrice() %>">
-                            <input type="hidden" name="description" value="<%= product.getDescription() %>">
-                            <button type="submit" class="btn btn-warning btn-sm mx-2">
-                                <i class="fa fa-edit"></i> Edit
-                            </button>
-                        </form>
-                        <form action="product" method="post">
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="id" value="<%= product.getId() %>">
-                            <button type="submit" class="btn btn-danger btn-sm mx-2" onclick="return confirm('Are you sure you want to delete this product?');">
-                                <i class="fa fa-trash"></i> Delete
-                            </button>
-                        </form>
-                    </div>
-                </td>
-
-            </tr>
-            <%
-                    }
-                } catch (Exception e) {
-                    out.println("<p class='text-danger'>Error: " + e.getMessage() + "</p>");
-                }
-            %>
+            <c:choose>
+                <c:when test="${empty products}">
+                    <c:redirect url="product" />
+                </c:when>
+                <c:otherwise>
+                    <c:forEach var="product" items="${products}">
+                        <tr>
+                            <td>${product.id}</td>
+                            <td>${product.name}</td>
+                            <td>$ ${product.price}</td>
+                            <td>${product.description}</td>
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                    <form action="product" method="get">
+                                        <input type="hidden" name="id" value="${product.id}">
+                                        <input type="hidden" name="name" value="${product.name}">
+                                        <input type="hidden" name="price" value="${product.price}">
+                                        <input type="hidden" name="description" value="${product.description}">
+                                        <button type="submit" class="btn btn-warning btn-sm mx-2">
+                                            <i class="fa fa-edit"></i> Edit
+                                        </button>
+                                    </form>
+                                    <form action="product" method="post">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="id" value="${product.id}">
+                                        <button type="submit" class="btn btn-danger btn-sm mx-2"
+                                                onclick="return confirm('Are you sure you want to delete this product?');">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </c:otherwise>
+            </c:choose>
             </tbody>
         </table>
     </div>
@@ -166,6 +153,5 @@
 <!-- Bootstrap Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
