@@ -75,8 +75,9 @@
         <h2>Welcome, <%= username %>! 🎉</h2>
         <p class="text-muted">Explore our products below</p>
         <div class="mt-4">
-            <a href="product.jsp" class="btn btn-primary btn-custom">Products</a>
-            <a href="productjstl.jsp" class="btn btn-secondary btn-custom">Products JSTL</a>
+            <a href="productjstl.jsp" class="btn btn-secondary btn-custom">Model 1</a>
+            <a href="product.jsp" class="btn btn-primary btn-custom">Model 2</a>
+
         </div>
     </div>
 </div>
