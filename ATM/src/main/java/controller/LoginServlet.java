@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.User;
+import util.JwtUtil;
 
 import java.io.IOException;
 
@@ -18,10 +19,21 @@ public class LoginServlet extends HttpServlet {
         User user = User.checkLogin(username, password);
         //Step 3
         if (user != null) {
-            HttpSession session = req.getSession();
-            session.setAttribute("user_id", user.getId());
-            session.setAttribute("username", user.getUsername());
+            String token = JwtUtil.generateToken(username);
+            Cookie jwtCookie = new Cookie("jwt_token", token);
+            jwtCookie.setHttpOnly(true);
+            jwtCookie.setMaxAge(60 * 60 * 24);
+            jwtCookie.setPath("/");
+
+
+            Cookie userIdCookie = new Cookie("user_id", String.valueOf(user.getId()));
+            userIdCookie.setMaxAge(60 * 60 * 24);
+            userIdCookie.setPath("/");
+
+            resp.addCookie(jwtCookie);
+            resp.addCookie(userIdCookie);
             resp.sendRedirect("user");
+
         }else {
             req.setAttribute("error", "Invalid username or password");
             req.getRequestDispatcher("login.jsp").forward(req, resp);
