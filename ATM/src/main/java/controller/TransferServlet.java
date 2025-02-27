@@ -38,14 +38,14 @@ public class TransferServlet extends HttpServlet {
             boolean success = accountDAO.transfer(senderId, recipientId, amount);
 
             if (success) {
-                request.setAttribute("message", "Transfer successful");
+                request.getSession().setAttribute("message", "Transfer successful");
                 response.sendRedirect("history");
             } else {
-                request.setAttribute("error", "Transfer failed. Check recipient ID or balance.");
+                request.getSession().setAttribute("error", "Transfer failed. Check recipient ID or balance.");
                 request.getRequestDispatcher("transfer.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "Invalid input format");
+            request.getSession().setAttribute("error", "Invalid input format");
             request.getRequestDispatcher("transfer.jsp").forward(request, response);
         }
     }

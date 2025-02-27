@@ -35,14 +35,14 @@ public class WithdrawServlet extends HttpServlet {
             boolean success = account.withdraw(userId, amount);
 
             if (success) {
-                request.setAttribute("message", "Withdrawal successful");
+                request.getSession().setAttribute("message", "Withdrawal successful");
                 response.sendRedirect("history");
             } else {
-                request.setAttribute("error", "Insufficient funds");
+                request.getSession().setAttribute("error", "Insufficient funds");
                 request.getRequestDispatcher("withdraw.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "Invalid amount format");
+            request.getSession().setAttribute("error", "Invalid amount format");
             request.getRequestDispatcher("withdraw.jsp").forward(request, response);
         }
     }

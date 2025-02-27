@@ -29,6 +29,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <style>
         .custom-card {
             max-width: 500px;
@@ -80,6 +81,13 @@
                     <i class="fas fa-paper-plane"></i> Transfer
                 </button>
             </form>
+            <c:if test="${not empty error}">
+                <div class="alert alert-danger alert-dismissible fade show mt-3">
+                    <i class="bi bi-exclamation-triangle-fill"></i> ${error}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <% session.removeAttribute("error"); %>
+            </c:if>
         </div>
     </div>
 </div>
