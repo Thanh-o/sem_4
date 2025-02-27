@@ -11,7 +11,7 @@ import java.io.IOException;
 public class UserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Lấy cookie user_id
+      
         int userId = -1;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
