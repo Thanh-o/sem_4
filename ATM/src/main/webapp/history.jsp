@@ -78,14 +78,14 @@
                 <tr class="text-center">
                     <td>
                         <c:choose>
-                            <c:when test="${transaction.type == 'Deposit'}">
-                                <span class="text-success"><i class="fas fa-arrow-down"></i> Deposit</span>
+                            <c:when test="${transaction.type == 'TRANSFER'}">
+                                <span class="text-primary"><i class="fas fa-exchange-alt"></i> ${transaction.type}</span>
                             </c:when>
-                            <c:when test="${transaction.type == 'Withdrawal'}">
-                                <span class="text-danger"><i class="fas fa-arrow-up"></i> Withdrawal</span>
+                            <c:when test="${transaction.type == 'WITHDRAW'}">
+                                <span class="text-warning">  <i class="fas fa-money-bill-wave"></i> ${transaction.type}</span>
                             </c:when>
                             <c:otherwise>
-                                <i class="fas fa-exchange-alt"></i> ${transaction.type}
+                                <i class="fas fa-arrow-down"></i> $DEPOSIT
                             </c:otherwise>
                         </c:choose>
                     </td>

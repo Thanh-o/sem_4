@@ -2,34 +2,48 @@ package controller;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.*;
 import model.Account;
-
 
 import java.io.IOException;
 
 @WebServlet("/withdraw")
 public class WithdrawServlet extends HttpServlet {
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        Integer userId = (Integer) session.getAttribute("user_id");
-        double amount = Double.parseDouble(request.getParameter("amount"));
+        Integer userId = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("user_id".equals(cookie.getName())) {
+                    userId = Integer.parseInt(cookie.getValue());
+                    break;
+                }
+            }
+        }
 
-        Account account = new Account();
-        boolean success = account.withdraw(userId, amount);
+        if (userId == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
 
-        if (success) {
-            session.setAttribute("message", "Withdrawal successful");
-            response.sendRedirect("history");
+        try {
+            double amount = Double.parseDouble(request.getParameter("amount"));
 
-        } else {
-            session.setAttribute("error", "Insufficient funds");
-            response.sendRedirect("withdraw.jsp");
+            Account account = new Account();
+            boolean success = account.withdraw(userId, amount);
 
+            if (success) {
+                request.setAttribute("message", "Withdrawal successful");
+                response.sendRedirect("history");
+            } else {
+                request.setAttribute("error", "Insufficient funds");
+                request.getRequestDispatcher("withdraw.jsp").forward(request, response);
+            }
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Invalid amount format");
+            request.getRequestDispatcher("withdraw.jsp").forward(request, response);
         }
     }
 }
