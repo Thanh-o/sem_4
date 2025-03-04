@@ -142,8 +142,8 @@
             </ul>
 
             <div class="ms-auto">
-                <form method="get" action="logout">
-                    <button type="submit" class="btn btn-danger btn-custom" onclick="return confirm('Are you sure you want to logout?');">
+                <form method="get" action="logout" id="logoutForm">
+                    <button type="button" class="btn btn-danger btn-custom" id="logoutBtn">
                         <i class="fa fa-sign-out-alt"></i> Logout
                     </button>
                 </form>

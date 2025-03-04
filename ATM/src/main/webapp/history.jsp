@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="jakarta.servlet.http.HttpSession" %>
 <%@ page import="util.JwtUtil" %>
@@ -72,7 +73,7 @@
         }
         .table tbody tr:hover {
             background: #e9ecef;
-            transform: scale(1.02);
+
         }
         .transaction-icon {
             font-size: 1.4rem;
@@ -229,8 +230,9 @@
                                     <c:out value="${transaction.recipient != null ? transaction.recipient : 'N/A'}" />
                                 </td>
                                 <td class="text-muted">
-                                        ${transaction.createdAt}
+                                    <fmt:formatDate value="${transaction.createdAt}" pattern="dd/MM/yyyy HH:mm:ss" />
                                 </td>
+
                             </tr>
                         </c:forEach>
                         </tbody>
