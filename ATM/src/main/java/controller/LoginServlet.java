@@ -24,14 +24,13 @@ public class LoginServlet extends HttpServlet {
             jwtCookie.setHttpOnly(true);
             jwtCookie.setMaxAge(60 * 60 * 24);
             jwtCookie.setPath("/");
-
+            resp.addCookie(jwtCookie);
 
             Cookie userIdCookie = new Cookie("user_id", String.valueOf(user.getId()));
             userIdCookie.setMaxAge(60 * 60 * 24);
             userIdCookie.setPath("/");
-
-            resp.addCookie(jwtCookie);
             resp.addCookie(userIdCookie);
+
             resp.sendRedirect("user");
 
         }else {

@@ -19,6 +19,13 @@
         response.sendRedirect("login.jsp");
         return;
     }
+
+    // Lấy accountId từ request parameter
+    String accountId = request.getParameter("accountId");
+    if (accountId == null) {
+        response.sendRedirect("user");
+        return;
+    }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,12 +37,27 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
             min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
         }
         .navbar {
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(90deg, #1c2526 0%, #2d3839 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 1rem 0;
         }
+
+        .nav-link {
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .btn-custom {
+
+            padding: 0.4rem 1.2rem;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
         .custom-card {
             max-width: 550px;
             margin: 50px auto;
@@ -45,9 +67,7 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s ease;
         }
-        .custom-card:hover {
-            transform: translateY(-5px);
-        }
+
         .custom-btn {
             width: 100%;
             padding: 12px;
@@ -69,18 +89,46 @@
         .alert {
             border-radius: 8px;
         }
+        .account-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="user">🏠 Home</a>
-        <div class="ms-auto">
-            <form method="get" action="logout">
-                <button type="submit" class="btn btn-danger btn-custom" onclick="return confirm('Are you sure you want to logout?');">
-                    <i class="fa fa-sign-out-alt"></i> Logout
-                </button>
-            </form>
+        <!-- Navbar Brand -->
+        <a class="navbar-brand fw-bold" href="user">
+            <i class="fas fa-university me-2"></i> Banking App
+        </a>
+
+        <!-- Toggle Button for Mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar Menu -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="history?accountId=<%= accountId %>">
+                        <i class="fas fa-history me-1"></i> Transaction History
+                    </a>
+                </li>
+            </ul>
+
+            <div class="ms-auto">
+                <form method="get" action="logout">
+                    <button type="submit" class="btn btn-danger btn-custom" onclick="return confirm('Are you sure you want to logout?');">
+                        <i class="fa fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </nav>
@@ -93,10 +141,19 @@
             </h2>
             <p class="text-muted text-center mb-4">Send money securely and quickly</p>
 
+            <!-- Hiển thị thông tin account gửi -->
+            <div class="account-info text-center">
+                <h6 class="text-muted mb-2">From Account</h6>
+                <h5>Account ID: <%= accountId %></h5>
+            </div>
+
             <form action="transfer" method="post" onsubmit="return validateForm()">
+                <!-- Trường ẩn chứa senderAccountId -->
+                <input type="hidden" name="senderAccountId" value="<%= accountId %>">
+
                 <div class="mb-4">
-                    <label class="form-label"><i class="fas fa-user me-1"></i> Recipient ID</label>
-                    <input type="number" name="recipient" class="form-control" min="1" required placeholder="Enter recipient ID">
+                    <label class="form-label"><i class="fas fa-user me-1"></i> Recipient Account ID</label>
+                    <input type="number" name="recipientAccountId" class="form-control" min="1" required placeholder="Enter recipient account ID">
                 </div>
 
                 <div class="mb-4">
@@ -123,18 +180,23 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     function validateForm() {
-        const recipient = document.querySelector('input[name="recipient"]').value;
-        const amount = document.querySelector('input[name="amount"]').value;
+        const recipient = parseFloat(document.querySelector('input[name="recipientAccountId"]').value);
+        const amount = parseFloat(document.querySelector('input[name="amount"]').value);
+        const senderAccountId = document.querySelector('input[name="senderAccountId"]').value;
 
         if (recipient <= 0) {
-            alert('Please enter a valid recipient ID.');
+            alert('Please enter a valid recipient account ID.');
+            return false;
+        }
+        if (recipient === senderAccountId) {
+            alert('Recipient account ID cannot be the same as sender account ID.');
             return false;
         }
         if (amount <= 0) {
             alert('Please enter a valid amount greater than 0.');
             return false;
         }
-        return confirm(`Are you sure you want to transfer $${amount} to ID ${recipient}?`);
+        return confirm('Are you sure you want to transfer $' + amount + ' from Account ID <%= accountId %> to Account ID ' + recipient + ' ?');
     }
 </script>
 </body>

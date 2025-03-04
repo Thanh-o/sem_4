@@ -12,38 +12,26 @@ public class WithdrawServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Integer userId = null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("user_id".equals(cookie.getName())) {
-                    userId = Integer.parseInt(cookie.getValue());
-                    break;
-                }
-            }
-        }
-
-        if (userId == null) {
-            response.sendRedirect("login.jsp");
-            return;
-        }
+        String senderAccountIdStr = request.getParameter("senderAccountId");
 
         try {
+            int senderAccountId = Integer.parseInt(senderAccountIdStr);
             double amount = Double.parseDouble(request.getParameter("amount"));
 
             Account account = new Account();
-            boolean success = account.withdraw(userId, amount);
+            boolean success = account.withdraw(senderAccountId, amount);
 
             if (success) {
                 request.getSession().setAttribute("message", "Withdrawal successful");
-                response.sendRedirect("history");
+                response.sendRedirect("history?accountId=" + senderAccountId);
             } else {
                 request.getSession().setAttribute("error", "Insufficient funds");
-                request.getRequestDispatcher("withdraw.jsp").forward(request, response);
+                response.sendRedirect("withdraw.jsp?accountId=" + senderAccountId);
             }
         } catch (NumberFormatException e) {
-            request.getSession().setAttribute("error", "Invalid amount format");
-            request.getRequestDispatcher("withdraw.jsp").forward(request, response);
+            request.getSession().setAttribute("error", "Invalid input format");
+            response.sendRedirect("withdraw.jsp?accountId=" + senderAccountIdStr);
         }
     }
+
 }

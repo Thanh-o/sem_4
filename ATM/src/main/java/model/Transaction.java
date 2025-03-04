@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Transaction {
     private int id;
-    private int userId;
+    private int accountId;
     private String type;
     private double amount;
     private Integer recipient;
@@ -19,8 +19,8 @@ public class Transaction {
 
     public Transaction() {}
 
-    public Transaction(int userId, String type, double amount, Integer recipient, Timestamp createdAt) {
-        this.userId = userId;
+    public Transaction(int accountId, String type, double amount, Integer recipient, Timestamp createdAt) {
+        this.accountId = accountId;
         this.type = type;
         this.amount = amount;
         this.recipient = recipient;
@@ -30,8 +30,9 @@ public class Transaction {
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
-    public int getUserId() { return userId; }
-    public void setUserId(int userId) { this.userId = userId; }
+    // Sửa tên getter/setter từ getUserId/setUserId thành getAccountId/setAccountId cho đúng ngữ nghĩa
+    public int getAccountId() { return accountId; }
+    public void setAccountId(int accountId) { this.accountId = accountId; }
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
@@ -45,20 +46,25 @@ public class Transaction {
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
-    public List<Transaction> getTransactions(int userId) {
+    public List<Transaction> getTransactions(int accountId) {
         List<Transaction> transactions = new ArrayList<>();
         try (Connection conn = DBUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM transactions WHERE user_id = ? ORDER BY created_at DESC")) {
-            stmt.setInt(1, userId);
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT id, account_id, type, amount, recipient, created_at " +
+                             "FROM transactions WHERE account_id = ? ORDER BY created_at DESC")) {
+            stmt.setInt(1, accountId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                transactions.add(new Transaction(
-                        rs.getInt("user_id"),
-                        rs.getString("type"),
-                        rs.getDouble("amount"),
-                        rs.getInt("recipient"),
-                        rs.getTimestamp("created_at")
-                ));
+                Transaction transaction = new Transaction();
+                transaction.setId(rs.getInt("id"));
+                transaction.setAccountId(rs.getInt("account_id"));
+                transaction.setType(rs.getString("type"));
+                transaction.setAmount(rs.getDouble("amount"));
+                // Xử lý recipient có thể null
+                int recipient = rs.getInt("recipient");
+                transaction.setRecipient(rs.wasNull() ? null : recipient);
+                transaction.setCreatedAt(rs.getTimestamp("created_at"));
+                transactions.add(transaction);
             }
         } catch (Exception e) {
             e.printStackTrace();

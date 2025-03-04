@@ -13,40 +13,31 @@ public class TransferServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        Integer senderId = null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("user_id".equals(cookie.getName())) {
-                    senderId = Integer.parseInt(cookie.getValue());
-                    break;
-                }
-            }
-        }
-
-
-        if (senderId == null) {
+        // Lấy senderAccountId từ form thay vì từ cookie user_id
+        String senderAccountIdStr = request.getParameter("senderAccountId");
+        if (senderAccountIdStr == null) {
             response.sendRedirect("login.jsp");
             return;
         }
 
         try {
-            int recipientId = Integer.parseInt(request.getParameter("recipient"));
+            int senderAccountId = Integer.parseInt(senderAccountIdStr);
+            int recipientAccountId = Integer.parseInt(request.getParameter("recipientAccountId"));
             double amount = Double.parseDouble(request.getParameter("amount"));
 
             Account accountDAO = new Account();
-            boolean success = accountDAO.transfer(senderId, recipientId, amount);
+            boolean success = accountDAO.transfer(senderAccountId, recipientAccountId, amount);
 
             if (success) {
                 request.getSession().setAttribute("message", "Transfer successful");
-                response.sendRedirect("history");
+                response.sendRedirect("history?accountId=" + senderAccountId); // Truyền accountId về history
             } else {
-                request.getSession().setAttribute("error", "Transfer failed. Check recipient ID or balance.");
-                request.getRequestDispatcher("transfer.jsp").forward(request, response);
+                request.getSession().setAttribute("error", "Transfer failed. Check recipient account ID or balance.");
+                response.sendRedirect("transfer.jsp?accountId=" + senderAccountId); // Quay lại với accountId
             }
         } catch (NumberFormatException e) {
             request.getSession().setAttribute("error", "Invalid input format");
-            request.getRequestDispatcher("transfer.jsp").forward(request, response);
+            response.sendRedirect("transfer.jsp?accountId=" + senderAccountIdStr); // Quay lại với accountId
         }
     }
 }
