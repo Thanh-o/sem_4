@@ -1,28 +1,25 @@
 package org.example.mvcjsplibrary.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-
-import java.io.Serializable;
+import lombok.*;
 
 @Entity
-@Table(name = "books")
+@Table(name = "Book")
 @Data
-public class Book implements Serializable {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
     private String title;
-    @Column(nullable = false)
+
     private String author;
-    @Column(nullable = false)
+
+    @Column(unique = true)
     private String isbn;
 
-    @Column(nullable = false)
-    private String publicationYear;
-    private int availStatus;
-    private int totalBook;
-
+    private boolean available = true;
 }

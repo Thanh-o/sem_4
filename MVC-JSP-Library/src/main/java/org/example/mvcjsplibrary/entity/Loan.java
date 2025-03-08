@@ -1,31 +1,33 @@
 package org.example.mvcjsplibrary.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-
-import java.io.Serializable;
-import java.util.Date;
+import lombok.*;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "loans")
+@Table(name = "Loan")
 @Data
-
-public class Loan implements Serializable {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Loan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne
     @JoinColumn(name = "book_id")
     private Book book;
 
-    @Temporal(TemporalType.DATE)
-    private Date loadDate;
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
 
-    @Temporal(TemporalType.DATE)
-    private Date returnDate;
+    @Column(name = "borrow_date")
+    private LocalDate borrowDate;
+
+    @Column(name = "due_date")
+    private LocalDate dueDate;
+
+    @Column(name = "return_date")
+    private LocalDate returnDate;
 }

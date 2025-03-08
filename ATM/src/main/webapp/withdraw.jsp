@@ -228,6 +228,7 @@
         </div>
     </div>
 </div>
+
 <!-- Modal xác nhận rút tiền -->
 <div class="modal fade" id="confirmWithdrawModal" tabindex="-1" aria-labelledby="confirmWithdrawModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -281,7 +282,6 @@
     });
 
 
-
     function validateForm() {
         const amountInput = document.querySelector('input[name="amount"]');
         const amount = parseFloat(amountInput.value);
@@ -311,7 +311,7 @@
         // Xử lý sự kiện khi nhấn Confirm
         confirmBtn.onclick = function() {
             confirmModal.hide();
-            document.querySelector('form[action="withdraw"]').submit(); // Gửi form khi xác nhận
+            document.querySelector('form[action="withdraw"]').submit();
         };
 
         return false; // Ngăn form gửi ngay lập tức

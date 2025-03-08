@@ -144,8 +144,8 @@
         <!-- Navbar Menu -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <div class="ms-auto">
-                <form method="get" action="logout">
-                    <button type="submit" class="btn btn-danger btn-custom" onclick="return confirm('Are you sure you want to logout?');">
+                <form method="get" action="logout" id="logoutForm">
+                    <button type="button" class="btn btn-danger btn-custom" id="logoutBtn">
                         <i class="fa fa-sign-out-alt"></i> Logout
                     </button>
                 </form>
@@ -246,8 +246,55 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="confirmLogoutModal" tabindex="-1" aria-labelledby="confirmLogoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 15px; background: #fff; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);">
+            <div class="modal-header" style="background: linear-gradient(90deg, #dc3545, #c82333); color: white; border-radius: 15px 15px 0 0;">
+                <h5 class="modal-title" id="confirmLogoutModalLabel">
+                    <i class="fas fa-sign-out-alt me-2"></i> Confirm Logout
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to log out of your account?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmLogoutBtn">
+                    <i class="fas fa-check me-1"></i> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+        var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl);
+        });
+        toastList.forEach(toast => toast.show());
+
+        // Xử lý nút Logout
+        const logoutBtn = document.getElementById('logoutBtn');
+        const confirmLogoutModal = new bootstrap.Modal(document.getElementById('confirmLogoutModal'));
+        const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+
+        logoutBtn.addEventListener('click', function() {
+            confirmLogoutModal.show();
+        });
+
+        confirmLogoutBtn.addEventListener('click', function() {
+            confirmLogoutModal.hide();
+            document.getElementById('logoutForm').submit(); // Gửi form logout
+        });
+    });
+</script>
 <script>
     // Optional: Add interactivity for "Load More" button
     document.querySelector('.load-more-btn').addEventListener('click', function() {

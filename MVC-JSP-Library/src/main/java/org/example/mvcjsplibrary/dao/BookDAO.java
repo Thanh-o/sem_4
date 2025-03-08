@@ -1,33 +1,29 @@
 package org.example.mvcjsplibrary.dao;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
+import org.example.mvcjsplibrary.config.HibernateConfig;
 import org.example.mvcjsplibrary.entity.Book;
-
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import java.util.List;
 
 public class BookDAO {
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    @Transactional//ACID
     public void saveBook(Book book) {
-        entityManager.persist(book);
-    }
-    public Book findBookById(Long id) {
-        return entityManager.find(Book.class, id);
+        Transaction transaction = null;
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.persist(book);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
     }
 
-//    public List<Book> getAllBook() {
-//        return entityManager
-//    }
-    @Transactional
-    public void updateAvailBook(Long BookId, int newAvail) {
-        Book book = findBookById(BookId);
-        if (book != null) {
-            book.setTotalBook(newAvail);
-            entityManager.merge(book);
+    public List<Book> getAllBooks() {
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
+            return session.createQuery("from Book", Book.class).list();
         }
     }
 }
