@@ -1,35 +1,41 @@
 package com.fptaptech.demo2.DAO;
 
 import com.fptaptech.demo2.model.User;
-import com.fptaptech.demo2.utils.DatabaseConnection;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.TypedQuery;
 
 public class UserDAO {
+    private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("libraryPU");
 
-    public User getUserByUsername(String username) {
-        String query = "SELECT * FROM users WHERE username = ?";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, username);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return new User(
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        rs.getString("password"), // ✅ Nếu mật khẩu đã hash, sẽ lấy giá trị này
-                        rs.getString("role")
-                );
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null; // ❌ Nếu không tìm thấy user, trả về null
+    private EntityManager getEntityManager() {
+        return emf.createEntityManager();
     }
 
+    // ✅ Lấy user theo username
+    public User getUserByUsername(String username) {
+        EntityManager em = getEntityManager();
+        try {
+            TypedQuery<User> query = em.createQuery(
+                    "SELECT u FROM User u WHERE u.username = :username", User.class
+            );
+            query.setParameter("username", username);
+            return query.getSingleResult(); // Trả về user hoặc ném exception nếu không tìm thấy
+        } catch (jakarta.persistence.NoResultException e) {
+            return null; // ❌ Trả về null nếu không tìm thấy user
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            em.close();
+        }
+    }
+
+    // Optional: Close EntityManagerFactory when application shuts down
+    public static void closeEntityManagerFactory() {
+        if (emf != null && emf.isOpen()) {
+            emf.close();
+        }
+    }
 }

@@ -1,107 +1,116 @@
 package com.fptaptech.demo2.DAO;
 
 import com.fptaptech.demo2.model.Transaction;
-import com.fptaptech.demo2.utils.DatabaseConnection;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.TypedQuery;
 
-import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TransactionDAO {
+    private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("libraryPU");
+
+    private EntityManager getEntityManager() {
+        return emf.createEntityManager();
+    }
 
     // ✅ Mượn sách
     public boolean borrowBook(int userId, int bookId) {
-        String query = """
-            INSERT INTO transactions (user_id, book_id, borrow_date, due_date, status) 
-            VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 14 DAY), 'BORROWED')
-        """;
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, userId);
-            stmt.setInt(2, bookId);
-            return stmt.executeUpdate() > 0; // ✅ Trả về `true` nếu thêm thành công
-        } catch (SQLException e) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Transaction transaction = new Transaction();
+            transaction.setUserId(userId);
+            transaction.setBookId(bookId);
+            transaction.setBorrowDate(LocalDateTime.now());
+            transaction.setDueDate(LocalDateTime.now().plusDays(14));
+            transaction.setStatus("BORROWED");
+            em.persist(transaction);
+            em.getTransaction().commit();
+            return true;
+        } catch (Exception e) {
+            em.getTransaction().rollback();
             e.printStackTrace();
+            return false;
+        } finally {
+            em.close();
         }
-        return false;
     }
 
     // ✅ Trả sách
     public boolean returnBook(int transactionId) {
-        String query = """
-            UPDATE transactions 
-            SET return_date = NOW(), status = 'RETURNED' 
-            WHERE id = ? AND status = 'BORROWED'
-        """;
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, transactionId);
-            return stmt.executeUpdate() > 0; // ✅ Trả về `true` nếu cập nhật thành công
-        } catch (SQLException e) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Transaction transaction = em.find(Transaction.class, transactionId);
+            if (transaction != null && "BORROWED".equals(transaction.getStatus())) {
+                transaction.setReturnDate(LocalDateTime.now());
+                transaction.setStatus("RETURNED");
+                em.merge(transaction);
+                em.getTransaction().commit();
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            em.getTransaction().rollback();
             e.printStackTrace();
+            return false;
+        } finally {
+            em.close();
         }
-        return false;
     }
 
     // ✅ Lấy danh sách giao dịch của user (hoặc tất cả nếu userId == -1)
     public List<Transaction> getUserTransactions(int userId) {
-        List<Transaction> transactions = new ArrayList<>();
-        String query = """
-        SELECT t.id, t.user_id, u.username AS user_name, t.book_id, 
-               COALESCE(b.title, 'Sách đã bị xóa') AS book_title,
-               t.borrow_date, t.due_date, t.return_date, t.status
-        FROM transactions t
-        LEFT JOIN books b ON t.book_id = b.id
-        LEFT JOIN users u ON t.user_id = u.id
-        """ + (userId != -1 ? " WHERE t.user_id = ?" : "") + " ORDER BY t.borrow_date DESC";
+        EntityManager em = getEntityManager();
+        try {
+            String jpql = """
+                SELECT NEW com.fptaptech.demo2.model.Transaction(
+                    t.id, t.userId, u.username, t.bookId, COALESCE(b.title, 'Sách đã bị xóa'),
+                    t.borrowDate, t.dueDate, t.returnDate, t.status
+                )
+                FROM Transaction t
+                LEFT JOIN Book b ON t.bookId = b.id
+                LEFT JOIN User u ON t.userId = u.id
+            """ + (userId != -1 ? " WHERE t.userId = :userId" : "") + " ORDER BY t.borrowDate DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
+            TypedQuery<Transaction> query = em.createQuery(jpql, Transaction.class);
             if (userId != -1) {
-                stmt.setInt(1, userId);
+                query.setParameter("userId", userId);
             }
-
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                // ✅ Xử lý `return_date` để tránh lỗi NULL
-                Timestamp returnTimestamp = rs.getTimestamp("return_date");
-                LocalDateTime returnDate = (returnTimestamp != null) ? returnTimestamp.toLocalDateTime() : null;
-
-                transactions.add(new Transaction(
-                        rs.getInt("id"),
-                        rs.getInt("user_id"),
-                        rs.getString("user_name"), // ✅ Thêm tên người mượn
-                        rs.getInt("book_id"),
-                        rs.getString("book_title"), // ✅ Thêm tên sách
-                        rs.getTimestamp("borrow_date").toLocalDateTime(),
-                        rs.getTimestamp("due_date") != null ? rs.getTimestamp("due_date").toLocalDateTime() : null,
-                        returnDate,  // ✅ Giải quyết lỗi return_date bị NULL
-                        rs.getString("status")
-                ));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            return query.getResultList();
+        } finally {
+            em.close();
         }
-        return transactions;
     }
 
-
-
+    // ✅ Xóa giao dịch
     public boolean deleteTransaction(int transactionId) {
-        String query = "DELETE FROM transactions WHERE id = ?";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, transactionId);
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Transaction transaction = em.find(Transaction.class, transactionId);
+            if (transaction != null) {
+                em.remove(transaction);
+                em.getTransaction().commit();
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            em.getTransaction().rollback();
             e.printStackTrace();
+            return false;
+        } finally {
+            em.close();
         }
-        return false;
     }
 
+    // Optional: Close EntityManagerFactory when application shuts down
+    public static void closeEntityManagerFactory() {
+        if (emf != null && emf.isOpen()) {
+            emf.close();
+        }
+    }
 }

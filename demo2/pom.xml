@@ -112,12 +112,6 @@
                 <version>3.1.0</version>
             </dependency>
 
-            <!-- Hibernate JPA -->
-            <dependency>
-                <groupId>org.hibernate.orm</groupId>
-                <artifactId>hibernate-core</artifactId>
-                <version>6.2.0.Final</version>
-            </dependency>
         </dependencies>
 
     <build>
