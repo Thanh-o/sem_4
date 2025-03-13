@@ -99,4 +99,93 @@ public class Player {
         return playerIndices;
     }
 
+    // Add a new player with their index
+    public boolean add(String playerName, int age, String indexName, float value) {
+        Connection conn = null;
+        PreparedStatement stmtPlayer = null;
+        PreparedStatement stmtPlayerIndex = null;
+        PreparedStatement stmtIndexer = null;
+        ResultSet generatedKeys = null;
+
+        try {
+            conn = DBUtil.getConnection();
+            conn.setAutoCommit(false); // Start transaction
+
+            // Step 1: Insert into player table (set fullName same as name)
+            String insertPlayerSQL = "INSERT INTO player (name, full_name, age) VALUES (?, ?, ?)";
+            stmtPlayer = conn.prepareStatement(insertPlayerSQL, Statement.RETURN_GENERATED_KEYS);
+            stmtPlayer.setString(1, playerName); // name
+            stmtPlayer.setString(2, playerName); // full_name (same as name)
+            stmtPlayer.setInt(3, age);
+            int affectedRows = stmtPlayer.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SQLException("Creating player failed, no rows affected.");
+            }
+
+            // Get the generated player_id
+            generatedKeys = stmtPlayer.getGeneratedKeys();
+            if (!generatedKeys.next()) {
+                throw new SQLException("Creating player failed, no ID obtained.");
+            }
+            int playerId = generatedKeys.getInt(1);
+
+            // Step 2: Check if indexName exists in indexer table, if not insert it
+            int indexId;
+            String selectIndexerSQL = "SELECT index_id FROM indexer WHERE name = ?";
+            stmtIndexer = conn.prepareStatement(selectIndexerSQL);
+            stmtIndexer.setString(1, indexName);
+            ResultSet rsIndexer = stmtIndexer.executeQuery();
+
+            if (rsIndexer.next()) {
+                indexId = rsIndexer.getInt("index_id");
+            } else {
+                // Insert new indexName into indexer table
+                String insertIndexerSQL = "INSERT INTO indexer (name) VALUES (?)";
+                stmtIndexer = conn.prepareStatement(insertIndexerSQL, Statement.RETURN_GENERATED_KEYS);
+                stmtIndexer.setString(1, indexName);
+                stmtIndexer.executeUpdate();
+
+                ResultSet indexerKeys = stmtIndexer.getGeneratedKeys();
+                if (indexerKeys.next()) {
+                    indexId = indexerKeys.getInt(1);
+                } else {
+                    throw new SQLException("Creating indexer failed, no ID obtained.");
+                }
+            }
+
+            // Step 3: Insert into player_index table
+            String insertPlayerIndexSQL = "INSERT INTO player_index (player_id, index_id, value) VALUES (?, ?, ?)";
+            stmtPlayerIndex = conn.prepareStatement(insertPlayerIndexSQL);
+            stmtPlayerIndex.setInt(1, playerId);
+            stmtPlayerIndex.setInt(2, indexId);
+            stmtPlayerIndex.setFloat(3, value);
+            stmtPlayerIndex.executeUpdate();
+
+            conn.commit(); // Commit transaction
+            return true;
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback(); // Rollback on error
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            return false;
+        } finally {
+            // Close resources
+            try {
+                if (generatedKeys != null) generatedKeys.close();
+                if (stmtPlayer != null) stmtPlayer.close();
+                if (stmtPlayerIndex != null) stmtPlayerIndex.close();
+                if (stmtIndexer != null) stmtIndexer.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
   }
