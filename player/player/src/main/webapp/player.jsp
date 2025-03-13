@@ -47,36 +47,21 @@
 <body>
 <h1>Player List</h1>
 
-<form action="${pageContext.request.contextPath}/player" method="post">
-    <label for="playerName">Player name</label>
-    <input type="text" id="playerName" name="playerName" placeholder="Player name" required><br>
+<!-- Hiển thị thông báo -->
+<c:if test="${not empty message}">
+    <p style="color: green;">${message}</p>
+</c:if>
 
-    <label for="playerAge">Player age</label>
-    <input type="number" id="playerAge" name="playerAge" placeholder="Player age" required><br>
-
-    <label for="indexName">Index name</label>
-    <select id="indexName" name="indexName" required>
-        <option value="">Select Index</option>
-        <option value="speed">Speed</option>
-        <option value="strength">Strength</option>
-        <option value="accurate">Accurate</option>
-    </select><br>
-
-    <label for="value">Value</label>
-    <select id="value" name="value" required>
-        <option value="">Select Value</option>
-        <option value="90">90</option>
-        <option value="1">1</option>
-    </select><br>
-
-    <button type="submit">Add</button>
+<!-- Form thêm Player -->
+<h2>Add Player</h2>
+<form action="player" method="post">
+    Name: <input type="text" name="name" required><br>
+    Full Name: <input type="text" name="fullName" required><br>
+    Age: <input type="number" name="age" required><br>
+    Index ID: <input type="number" name="indexId" required><br>
+    Value: <input type="number" step="0.1" name="value" required><br>
+    <input type="submit" value="Add Player">
 </form>
-
-<!-- Display error message if present -->
-<% if (request.getAttribute("errorMessage") != null) { %>
-<p style="color: red;"><%= request.getAttribute("errorMessage") %></p>
-<% } %>
-
 <table>
     <thead>
     <tr>
