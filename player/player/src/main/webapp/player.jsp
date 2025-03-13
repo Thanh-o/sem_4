@@ -56,7 +56,7 @@
 <h2>Add Player</h2>
 <form action="player" method="post">
     Name: <input type="text" name="name" required><br>
-    Full Name: <input type="text" name="fullName" required><br>
+
     Age: <input type="number" name="age" required><br>
     Index ID: <input type="number" name="indexId" required><br>
     Value: <input type="number" step="0.1" name="value" required><br>
@@ -80,6 +80,15 @@
             <td>${player.age}</td>
             <td>${player.indexName}</td>
             <td>${player.value}</td>
+            <td>
+                <a href="${pageContext.request.contextPath}/edit.jsp?playerId=${player.id}">
+                    <button class="edit-btn">Edit</button>
+                </a>
+                <form action="${pageContext.request.contextPath}/delete" method="post" style="display: inline;">
+                    <input type="hidden" name="playerId" value="${player.id}">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
         </tr>
     </c:forEach>
     <c:if test="${empty playerIndices}">

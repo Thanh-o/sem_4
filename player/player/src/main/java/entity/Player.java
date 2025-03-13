@@ -109,7 +109,7 @@ public class Player {
 
             // Thêm Player vào bảng player
             playerStmt.setString(1, name);
-            playerStmt.setString(2, fullName);
+            playerStmt.setString(2, name);
             playerStmt.setInt(3, age);
             playerStmt.setInt(4, indexId);
             int affectedRows = playerStmt.executeUpdate();
@@ -133,6 +133,66 @@ public class Player {
                 } else {
                     throw new SQLException("Creating player failed, no ID obtained.");
                 }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public boolean editPlayer(int playerId, String name, String fullName, int age, int indexId, float value) {
+        String updatePlayerSQL = "UPDATE player SET name = ?, full_name = ?, age = ?, index_id = ? WHERE player_id = ?";
+        String updatePlayerIndexSQL = "UPDATE player_index SET index_id = ?, value = ? WHERE player_id = ?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement playerStmt = conn.prepareStatement(updatePlayerSQL);
+             PreparedStatement playerIndexStmt = conn.prepareStatement(updatePlayerIndexSQL)) {
+
+            // Cập nhật thông tin Player trong bảng player
+            playerStmt.setString(1, name);
+            playerStmt.setString(2, fullName);
+            playerStmt.setInt(3, age);
+            playerStmt.setInt(4, indexId);
+            playerStmt.setInt(5, playerId);
+            int playerRowsAffected = playerStmt.executeUpdate();
+
+            // Cập nhật thông tin trong bảng player_index
+            playerIndexStmt.setInt(1, indexId);
+            playerIndexStmt.setFloat(2, value);
+            playerIndexStmt.setInt(3, playerId);
+            int playerIndexRowsAffected = playerIndexStmt.executeUpdate();
+
+            // Kiểm tra xem có bản ghi nào được cập nhật không
+            if (playerRowsAffected > 0 && playerIndexRowsAffected > 0) {
+                return true;
+            } else {
+                throw new SQLException("Updating player failed, no rows affected.");
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public boolean deletePlayer(int playerId) {
+        String deletePlayerIndexSQL = "DELETE FROM player_index WHERE player_id = ?";
+        String deletePlayerSQL = "DELETE FROM player WHERE player_id = ?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement playerIndexStmt = conn.prepareStatement(deletePlayerIndexSQL);
+             PreparedStatement playerStmt = conn.prepareStatement(deletePlayerSQL)) {
+
+            // Xóa thông tin trong bảng player_index trước
+            playerIndexStmt.setInt(1, playerId);
+            int playerIndexRowsAffected = playerIndexStmt.executeUpdate();
+
+            // Xóa thông tin trong bảng player
+            playerStmt.setInt(1, playerId);
+            int playerRowsAffected = playerStmt.executeUpdate();
+
+            // Kiểm tra xem có bản ghi nào được xóa không
+            if (playerRowsAffected > 0) {
+                return true;
+            } else {
+                throw new SQLException("Deleting player failed, no rows affected.");
             }
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
