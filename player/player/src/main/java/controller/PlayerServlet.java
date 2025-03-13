@@ -24,26 +24,12 @@ public class PlayerServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Fetch all player-index data
-        List<PlayerIndex> playerIndices = playerModel.getAllPlayerIndices();
+        List<PlayerIndex> playerIndices = playerModel.getAll();
         request.setAttribute("playerIndices", playerIndices);
 
         // Forward to JSP
         request.getRequestDispatcher("player.jsp").forward(request, response);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        // Handle form submission to add a new player-index entry
-        String playerName = request.getParameter("playerName");
-        int age = Integer.parseInt(request.getParameter("playerAge"));
-        String indexName = request.getParameter("indexName");
-        float value = Float.parseFloat(request.getParameter("value"));
 
-        // Add the player-index entry
-        playerModel.addPlayerIndex(playerName, age, indexName, value);
-
-        // Redirect back to the player page to refresh the list
-        response.sendRedirect("player");
-    }
 }

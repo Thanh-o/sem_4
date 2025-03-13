@@ -64,175 +64,39 @@ public class Player {
     }
 
     // Get all players
-    public List<Player> getAllPlayers() {
-        List<Player> players = new ArrayList<>();
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT player_id, name, full_name, age, index_id FROM player")) {
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                Player player = new Player();
-                player.setPlayerId(rs.getInt("player_id"));
-                player.setName(rs.getString("name"));
-                player.setFullName(rs.getString("full_name"));
-                player.setAge(rs.getInt("age"));
-                player.setIndexId(rs.getInt("index_id"));
-                players.add(player);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return players;
-    }
-
-    // Get all player-index combinations
-    public List<PlayerIndex> getAllPlayerIndices() {
+    public List<PlayerIndex> getAll() {
         List<PlayerIndex> playerIndices = new ArrayList<>();
+        String sql = "SELECT p.player_id, p.name AS player_name, p.age, i.name AS index_name, pi.value " +
+                "FROM player p " +
+                "LEFT JOIN player_index pi ON p.player_id = pi.player_id " +
+                "LEFT JOIN indexer i ON pi.index_id = i.index_id";
+
         try (Connection conn = DBUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT pi.id, p.name AS player_name, p.age, i.name AS index_name, pi.value " +
-                             "FROM player p " +
-                             "JOIN player_index pi ON p.player_id = pi.player_id " +
-                             "JOIN indexer i ON pi.index_id = i.index_id")) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                playerIndices.add(new PlayerIndex(
-                        rs.getInt("id"),
+                String ageStr = rs.getString("age");
+                int age = 0;
+                try {
+                    age = ageStr != null ? Integer.parseInt(ageStr) : 0;
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid age format for player: " + rs.getString("player_name"));
+                }
+
+                PlayerIndex playerIndex = new PlayerIndex(
+                        rs.getInt("player_id"),
                         rs.getString("player_name"),
-                        rs.getInt("age"),
+                        age,
                         rs.getString("index_name"),
                         rs.getFloat("value")
-                ));
+                );
+                playerIndices.add(playerIndex);
             }
-        } catch (Exception e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return playerIndices;
     }
 
-    // Save new player
-    public void save() {
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT INTO player (name, full_name, age, index_id) VALUES (?, ?, ?, ?)",
-                     Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, this.name);
-            stmt.setString(2, this.fullName);
-            stmt.setInt(3, this.age);
-            stmt.setInt(4, this.indexId);
-            stmt.executeUpdate();
-
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    this.playerId = rs.getInt(1);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Add player-index entry
-    public void addPlayerIndex(String playerName, int age, String indexName, float value) {
-        try (Connection conn = DBUtil.getConnection()) {
-            // Check if player exists, if not, insert
-            String playerSql = "SELECT player_id FROM player WHERE name = ? AND age = ?";
-            PreparedStatement playerStmt = conn.prepareStatement(playerSql);
-            playerStmt.setString(1, playerName);
-            playerStmt.setInt(2, age);
-            ResultSet playerRs = playerStmt.executeQuery();
-            int playerId;
-
-            if (playerRs.next()) {
-                playerId = playerRs.getInt("player_id");
-            } else {
-                String insertPlayerSql = "INSERT INTO player (name, full_name, age, index_id) VALUES (?, ?, ?, ?)";
-                PreparedStatement insertPlayerStmt = conn.prepareStatement(insertPlayerSql, Statement.RETURN_GENERATED_KEYS);
-                insertPlayerStmt.setString(1, playerName);
-                insertPlayerStmt.setString(2, playerName);
-                insertPlayerStmt.setInt(3, age);
-                insertPlayerStmt.setInt(4, getIndexId(conn, indexName));
-                insertPlayerStmt.executeUpdate();
-
-                ResultSet generatedKeys = insertPlayerStmt.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    playerId = generatedKeys.getInt(1);
-                } else {
-                    throw new SQLException("Failed to insert player");
-                }
-            }
-
-            String insertIndexSql = "INSERT INTO player_index (player_id, index_id, value) VALUES (?, ?, ?)";
-            PreparedStatement insertIndexStmt = conn.prepareStatement(insertIndexSql);
-            insertIndexStmt.setInt(1, playerId);
-            insertIndexStmt.setInt(2, getIndexId(conn, indexName));
-            insertIndexStmt.setFloat(3, value);
-            insertIndexStmt.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Update player
-    public void update() {
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "UPDATE player SET name = ?, full_name = ?, age = ?, index_id = ? WHERE player_id = ?")) {
-            stmt.setString(1, this.name);
-            stmt.setString(2, this.fullName);
-            stmt.setInt(3, this.age);
-            stmt.setInt(4, this.indexId);
-            stmt.setInt(5, this.playerId);
-            stmt.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Delete player
-    public void delete() {
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "DELETE FROM player WHERE player_id = ?")) {
-            stmt.setInt(1, this.playerId);
-            stmt.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Find player by ID
-    public static Player findById(int playerId) {
-        Player player = null;
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT player_id, name, full_name, age, index_id FROM player WHERE player_id = ?")) {
-            stmt.setInt(1, playerId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                player = new Player();
-                player.setPlayerId(rs.getInt("player_id"));
-                player.setName(rs.getString("name"));
-                player.setFullName(rs.getString("full_name"));
-                player.setAge(rs.getInt("age"));
-                player.setIndexId(rs.getInt("index_id"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return player;
-    }
-
-    // Helper method to get index ID
-    private int getIndexId(Connection conn, String indexName) throws SQLException {
-        String sql = "SELECT index_id FROM indexer WHERE name = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setString(1, indexName);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            return rs.getInt("index_id");
-        }
-        throw new SQLException("Index not found: " + indexName);
-    }
-}
+  }
