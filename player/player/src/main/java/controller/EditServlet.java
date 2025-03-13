@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet(name = "EditServlet", urlPatterns = {"/edit"})
+@WebServlet("/edit")
 public class EditServlet extends HttpServlet {
     private Player playerModel;
 
@@ -18,27 +18,40 @@ public class EditServlet extends HttpServlet {
     }
 
     @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            int playerId = Integer.parseInt(request.getParameter("playerId"));
+
+            request.setAttribute("playerId", playerId);
+            request.getRequestDispatcher("/edit.jsp").forward(request, response);
+        } catch (NumberFormatException e) {
+            response.sendRedirect("error.jsp");
+        }
+    }
+
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Lấy dữ liệu từ form
-        int playerId = Integer.parseInt(request.getParameter("playerId"));
-        String name = request.getParameter("name");
-        String fullName = request.getParameter("fullName");
-        int age = Integer.parseInt(request.getParameter("age"));
-        int indexId = Integer.parseInt(request.getParameter("indexId"));
-        float value = Float.parseFloat(request.getParameter("value"));
+        try {
+            int playerId = Integer.parseInt(request.getParameter("playerId"));
+            String name = request.getParameter("name");
+            String fullName = request.getParameter("fullName");
+            int age = Integer.parseInt(request.getParameter("age"));
+            int indexId = Integer.parseInt(request.getParameter("indexId"));
+            float value = Float.parseFloat(request.getParameter("value"));
 
-        // Cập nhật thông tin Player
-        boolean isUpdated = playerModel.editPlayer(playerId, name, fullName, age, indexId, value);
+            boolean success = playerModel.editPlayer(playerId, name, fullName, age, indexId, value);
 
-        // Chuyển hướng về trang chính sau khi cập nhật
-        if (isUpdated) {
-            request.setAttribute("message", "Player updated successfully!");
-        } else {
-            request.setAttribute("message", "Failed to update player.");
+            if (success) {
+                response.sendRedirect("player"); // Chuyển hướng đến danh sách sau khi chỉnh sửa
+            } else {
+                request.setAttribute("error", "Failed to update player");
+                request.getRequestDispatcher("/edit.jsp").forward(request, response);
+            }
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Invalid input format");
+            request.getRequestDispatcher("/edit.jsp").forward(request, response);
         }
-
-        // Chuyển hướng về trang chính
-        response.sendRedirect(request.getContextPath() + "/player");
     }
 }

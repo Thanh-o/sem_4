@@ -5,76 +5,98 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Player List</title>
+    <title>Player Information</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0 300px 50px 300px;
 
         }
+
         h1 {
             text-align: center;
-            color: #d2691e;
-            font-size: 24px;
+            color: #e59c1f;
+            font-size: 40px;
             margin-bottom: 20px;
         }
+
         .form-container {
-            background-color: #fff;
+            background: white;
             padding: 15px;
-            border: 1px solid #ddd;
+
             border-radius: 5px;
             margin-bottom: 20px;
+            position: relative; /* Để định vị nút Add */
+            min-height: 120px; /* Đảm bảo form có đủ chiều cao để chứa các trường và nút */
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 cột cho các trường nhập liệu */
+            gap: 20px;
+        }
+
+        .form-group {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            flex-direction: column;
         }
+
         .form-container label {
-            margin-right: 10px;
-            font-weight: bold;
             color: #333;
+            margin-bottom: 5px;
         }
+
         .form-container input[type="text"],
         .form-container input[type="number"],
         .form-container select {
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            width: 200px;
+            width: 100%;
             box-sizing: border-box;
+            font-size: 14px;
         }
+
         .form-container button {
-            padding: 10px 20px;
+            padding: 5px 30px;
             background-color: #d2691e;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            height: 40px;
+            margin-top: 20px;
+
         }
+
+        .form-container .submit{
+            display: flex;
+            justify-content: flex-end;
+        }
+
         .form-container button:hover {
             background-color: #b3591a;
         }
+
         table {
             border-collapse: collapse;
             width: 100%;
-            margin: 0;
-            background-color: #fff;
+            background-color: white;
             border-radius: 5px;
             overflow: hidden;
         }
-        th, td {
 
+        th, td {
             padding: 12px;
-            text-align: left;
+            text-align: center;
+
         }
+
         th {
             background-color: #d2691e;
             color: white;
-            font-weight: bold;
+
         }
 
         .action-icons a,
@@ -88,14 +110,17 @@
             padding: 0;
             font-size: 16px;
         }
+
         .footer {
-            text-align: center;
+
             background-color: #d2691e;
             color: white;
             padding: 10px;
             margin-top: 20px;
             border-radius: 5px;
             font-size: 14px;
+            font-weight: bold;
+
         }
     </style>
 </head>
@@ -104,24 +129,34 @@
 
 <!-- Form thêm Player -->
 <form action="player" method="post" class="form-container">
-    <div>
-        <label>Player name:</label>
-        <input type="text" name="name" required><br>
-        <label>Player age:</label>
-        <input type="number" name="age" required><br>
-        <label>Index name:</label>
-        <select name="indexId" required>
-            <option value="1">speed</option>
-            <option value="2">strength</option>
-            <option value="3">accuracy</option>
-        </select><br>
-        <label>Value:</label>
-        <select name="value" required>
-            <option value="90">90</option>
-            <option value="1">1</option>
-        </select>
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Player name</label>
+            <input type="text" name="name" placeholder="Player name" required>
+        </div>
+        <div class="form-group">
+            <label>Player age</label>
+            <input type="number" name="age" placeholder="Player age" required>
+        </div>
+        <div class="form-group">
+            <label>Index name</label>
+            <select name="indexId" required>
+                <option value="">Index name</option>
+                <option value="1">speed</option>
+                <option value="2">strength</option>
+                <option value="3">accuracy</option>
+            </select>
+        </div>
+        <div class="form-group" style="width: 50%">
+            <label>Value</label>
+            <select name="value" required>
+                <option value="">Value</option>
+                <option value="90">90</option>
+                <option value="1">1</option>
+            </select>
+        </div>
     </div>
-    <button type="submit">Add</button>
+    <div class="submit"><button type="submit">Add</button></div>
 </form>
 
 <table>
@@ -130,7 +165,7 @@
         <th>Id</th>
         <th>Player name</th>
         <th>Player age</th>
-        <th>Index Name</th>
+        <th>Index name</th>
         <th>Value</th>
         <th></th>
     </tr>
@@ -142,11 +177,9 @@
             <td>${player.playerName}</td>
             <td>${player.age}</td>
             <td>${player.indexName}</td>
-            <td>
-                <fmt:formatNumber value="${player.value}" pattern="#" />
-            </td>
+            <td><fmt:formatNumber value="${player.value}" pattern="#"/></td>
             <td class="action-icons">
-                <a href="${pageContext.request.contextPath}/edit.jsp?playerId=${player.id}">
+                <a href="${pageContext.request.contextPath}/edit?playerId=${player.id}">
                     <button class="edit-btn"><i class="fas fa-edit"></i></button>
                 </a>
                 <form action="${pageContext.request.contextPath}/delete" method="post" style="display: inline;">

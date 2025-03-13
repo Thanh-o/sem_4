@@ -47,6 +47,7 @@ public class Player {
         private String indexName;
         private float value;
 
+
         public PlayerIndex(int id, String playerName, int age, String indexName, float value) {
             this.id = id;
             this.playerName = playerName;
@@ -139,6 +140,44 @@ public class Player {
             return false;
         }
     }
+
+    // Thêm vào class Player
+    public PlayerIndex getPlayerById(int playerId) {
+        String sql = "SELECT p.player_id, p.name AS player_name, p.age, i.name AS index_name, pi.value " +
+                "FROM player p " +
+                "LEFT JOIN player_index pi ON p.player_id = pi.player_id " +
+                "LEFT JOIN indexer i ON pi.index_id = i.index_id " +
+                "WHERE p.player_id = ?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, playerId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String ageStr = rs.getString("age");
+                int age = 0;
+                try {
+                    age = ageStr != null ? Integer.parseInt(ageStr) : 0;
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid age format for player: " + rs.getString("player_name"));
+                }
+
+                return new PlayerIndex(
+                        rs.getInt("player_id"),
+                        rs.getString("player_name"),
+                        age,
+                        rs.getString("index_name"),
+                        rs.getFloat("value")
+                );
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public boolean editPlayer(int playerId, String name, String fullName, int age, int indexId, float value) {
         String updatePlayerSQL = "UPDATE player SET name = ?, full_name = ?, age = ?, index_id = ? WHERE player_id = ?";
         String updatePlayerIndexSQL = "UPDATE player_index SET index_id = ?, value = ? WHERE player_id = ?";
@@ -147,31 +186,49 @@ public class Player {
              PreparedStatement playerStmt = conn.prepareStatement(updatePlayerSQL);
              PreparedStatement playerIndexStmt = conn.prepareStatement(updatePlayerIndexSQL)) {
 
-            // Cập nhật thông tin Player trong bảng player
-            playerStmt.setString(1, name);
-            playerStmt.setString(2, fullName);
-            playerStmt.setInt(3, age);
-            playerStmt.setInt(4, indexId);
-            playerStmt.setInt(5, playerId);
-            int playerRowsAffected = playerStmt.executeUpdate();
+            // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
+            conn.setAutoCommit(false);
 
-            // Cập nhật thông tin trong bảng player_index
-            playerIndexStmt.setInt(1, indexId);
-            playerIndexStmt.setFloat(2, value);
-            playerIndexStmt.setInt(3, playerId);
-            int playerIndexRowsAffected = playerIndexStmt.executeUpdate();
+            try {
+                // Cập nhật bảng player
+                playerStmt.setString(1, name);
+                playerStmt.setString(2, fullName);
+                playerStmt.setInt(3, age);
+                playerStmt.setInt(4, indexId);
+                playerStmt.setInt(5, playerId);
+                int playerRowsAffected = playerStmt.executeUpdate();
 
-            // Kiểm tra xem có bản ghi nào được cập nhật không
-            if (playerRowsAffected > 0 && playerIndexRowsAffected > 0) {
-                return true;
-            } else {
-                throw new SQLException("Updating player failed, no rows affected.");
+                // Cập nhật bảng player_index
+                playerIndexStmt.setInt(1, indexId);
+                playerIndexStmt.setFloat(2, value);
+                playerIndexStmt.setInt(3, playerId);
+                int playerIndexRowsAffected = playerIndexStmt.executeUpdate();
+
+                // Kiểm tra kết quả
+                if (playerRowsAffected > 0) {
+                    // Commit transaction nếu thành công
+                    conn.commit();
+                    return true;
+                } else {
+                    // Rollback nếu không có bản ghi nào được cập nhật
+                    conn.rollback();
+                    return false;
+                }
+            } catch (SQLException e) {
+                // Rollback transaction nếu có lỗi
+                conn.rollback();
+                throw e;
+            } finally {
+                // Khôi phục chế độ auto-commit
+                conn.setAutoCommit(true);
             }
+
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
             return false;
         }
     }
+
     public boolean deletePlayer(int playerId) {
         String deletePlayerIndexSQL = "DELETE FROM player_index WHERE player_id = ?";
         String deletePlayerSQL = "DELETE FROM player WHERE player_id = ?";
