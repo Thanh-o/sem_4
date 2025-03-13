@@ -1,41 +1,49 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>Player List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 20px;
+
         }
         h1 {
             text-align: center;
             color: #d2691e;
+            font-size: 24px;
+            margin-bottom: 20px;
         }
         .form-container {
-            background-color: #f9f9f9;
-            padding: 20px;
+            background-color: #fff;
+            padding: 15px;
             border: 1px solid #ddd;
             border-radius: 5px;
             margin-bottom: 20px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 10px;
             flex-wrap: wrap;
         }
         .form-container label {
             margin-right: 10px;
+            font-weight: bold;
+            color: #333;
         }
         .form-container input[type="text"],
         .form-container input[type="number"],
         .form-container select {
             padding: 8px;
-            margin: 5px;
             border: 1px solid #ccc;
             border-radius: 4px;
             width: 200px;
+            box-sizing: border-box;
         }
         .form-container button {
             padding: 10px 20px;
@@ -45,6 +53,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
+            height: 40px;
         }
         .form-container button:hover {
             background-color: #b3591a;
@@ -52,10 +61,13 @@
         table {
             border-collapse: collapse;
             width: 100%;
-            margin: 20px 0;
+            margin: 0;
+            background-color: #fff;
+            border-radius: 5px;
+            overflow: hidden;
         }
         th, td {
-            border: 1px solid #ddd;
+
             padding: 12px;
             text-align: left;
         }
@@ -64,23 +76,17 @@
             color: white;
             font-weight: bold;
         }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .action-icons a {
+
+        .action-icons a,
+        .action-icons button {
             margin-right: 10px;
             text-decoration: none;
             color: #007bff;
-        }
-        .action-icons button {
             background: none;
             border: none;
             cursor: pointer;
             padding: 0;
-            color: #007bff;
+            font-size: 16px;
         }
         .footer {
             text-align: center;
@@ -89,6 +95,7 @@
             padding: 10px;
             margin-top: 20px;
             border-radius: 5px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -105,7 +112,7 @@
         <label>Index name:</label>
         <select name="indexId" required>
             <option value="1">speed</option>
-            <option value="1">strength</option>
+            <option value="2">strength</option>
             <option value="3">accuracy</option>
         </select><br>
         <label>Value:</label>
@@ -125,7 +132,7 @@
         <th>Player age</th>
         <th>Index Name</th>
         <th>Value</th>
-        <th>Actions</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -135,16 +142,16 @@
             <td>${player.playerName}</td>
             <td>${player.age}</td>
             <td>${player.indexName}</td>
-            <td>${player.value}</td>
+            <td>
+                <fmt:formatNumber value="${player.value}" pattern="#" />
+            </td>
             <td class="action-icons">
                 <a href="${pageContext.request.contextPath}/edit.jsp?playerId=${player.id}">
-                    <img src="edit-icon.png" alt="Edit" style="width: 16px; height: 16px;">
+                    <button class="edit-btn"><i class="fas fa-edit"></i></button>
                 </a>
                 <form action="${pageContext.request.contextPath}/delete" method="post" style="display: inline;">
                     <input type="hidden" name="playerId" value="${player.id}">
-                    <button type="submit">
-                        <img src="delete-icon.png" alt="Delete" style="width: 16px; height: 16px;">
-                    </button>
+                    <button type="submit" class="delete-btn"><i class="fas fa-trash-alt"></i></button>
                 </form>
             </td>
         </tr>
