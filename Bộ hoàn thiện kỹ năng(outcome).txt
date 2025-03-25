@@ -1,0 +1,93 @@
+Bộ hoàn thiện kỹ năng(outcome)
+
+Kiến thức Phần Core(ngôn ngữ java, giải thuật, Cấu trúc dữ liệu, SQL)
+
+1. Kiến thức, kỹ năng cơ bản về chuyên môn lập trình core:
+
+- Kiến thức cơ bản về ngôn ngữ lập trình Java.
+- Có kiến thức cơ bản về OOP, Design Pattern, Algorithm, Data Structure & Database:
++ OOP:Nắm được các tính chất của oop(4 tính chất:Kế thừa, bao đóng, đa hình, trừu tượng), nắm các nguyên lý của lập trình hướng đối tượng.
+
++ Design Pattern: Hiểu và có khả năng implement các pattern cơ bản:Creational Pattern(Singleton, Factory),Structural (Adapter)
+
++ Algorithm: Có hiểu biết về các thuật toán tìm kiếm (search), sắp xếp, duyệt cơ bản.
++ Data Structure: Có khả năng giải thích, sử dụng các cấu trúc dữ liệu giải thuật cơ bản như Array, ArrayList, Map, HashMap,LinkedList vào các task lập trình thực tế
+
++ Database: 
+1NF, 2NF, 3NF
+Có khả năng thiết kế index, partition, tối ưu câu lệnh SQL
+ Có kiến thức nâng cao về lập trình Multithreading, concurrency handling, Connection pooling
+
+- Khuyến khích: Có kiến thức cơ bản về Lập trình đa luồng: Hiểu được khái niệm và bản chất hoạt động của Thread: Vòng đời thread,Async/sync, Lock, có khả năng lập trình trên môi trường multithread.
+
+
+2. Kiến thức phần SpringBoot
+
+Kiến thức Core:
+Bean Life Cycle
+Dependency Injection
+Inversion of Control
+BeanFactory and Application Context
+Kiến thức Web:
+Annotations
+MVC Structure
+Configuration
+Integrating different libraries/frameworks (Hibernate)
+Profiles
+Thymeleaf
+Kiến thức AOP (Aspect Oriented Programming):
+How AOP Works
+Tạo PointCut, JoinPoint, Aspect, etc (Basics Only)
+ REST API
+HTTP Methods:
+POST
+GET
+PUT
+DELETE
+OPTIONS
+TRACE
+HTTP Status Codes:
+1.X.X ; 2.X.X; 3.X.X; 4.X.X; 5.X.X
+Kiến thức Spring Data:
+Spring Data JPA
+3. Kiến thức phần Security
+
+Authentication
+Authorization
+OAuth2
+Form Authentications
+JWT(JSON Web Token)
+
+
+4. Kiến thức phần Microservice
+
+Hiểu rõ và mô tả tốt kiến trúc Microservice 
+Tạo được các service(vd: Inventory service, shipping service, store service…) 
+Sử dụng thành thạo  AMQP message broker(Message Queue or RabbitMQ or Kafka…)
+Tracking logs
+Hiểu ACID
+Capture Data Change(bắt trực tiếp các thay đổi Database để replicate thay đổi các datasource khác) vd:MySQL file binlog… 
+…
+
+5. Yêu cầu về Project (Project based) 
+
+Yêu cầu cơ bản
+- Biết các khái niệm về quy trình phát triển phần mềm, đặc biệt là quy trình Agile, Scrum.
+- Có khả năng Code rõ ràng(lean), nắm được các nguyên tắc SOLID
+- Có khả năng Sử dụng Git ở mức beginner: biết commit, push, pull code
+- Có khả năng debug code tại IDE
+- Có khả năng áp dụng và tuân thủ coding convention
+- Biết cách xử lý ngoại lệ
+
+ Nhiệm vụ
+- Mỗi người 1 project độc lập, update tiến độ theo ngày. Cuối mỗi tuần review 1 lần. Triển khai project thông qua trải nghiệm học tập training. 
+
+- Lập trình các chức năng đơn giản được giao theo tài liệu mô tả
+- Thực hiện các nhiệm vụ sửa lỗi được phát hiện trong quá trình phát triển và triển khai project.
+- Tự đọc hiểu được tài liệu giải pháp không cần hướng dẫn
+ Thực hiện review source code theo checklist, tìm nguyên nhân và khắc phục được lỗi do cá nhân tạo ra trong quá trình phát triển và triển khai.
+- Upcode các yêu cầu nâng cấp theo quy trình và kịch bản có sẵn
+
+
+
+
