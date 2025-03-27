@@ -81,7 +81,7 @@
             border-bottom: 1px solid #ddd;
         }
         th {
-            font-weight: bold;
+         
             color: #333;
         }
         td {
@@ -107,19 +107,58 @@
             margin: 0 0 15px;
             color: #333;
         }
+
+        .alert {
+            padding: 5px 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .alert-success {
+            background: #c5ecc7;
+            color: #2d4a22;
+            border: 1px solid #a3d97b;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-error {
+            background: #ea9d9d;
+            color: #4a1e1e;
+            border: 1px solid #ff4d4d;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .alert {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
-<!-- Success/Error Messages -->
-<div th:if="${successMessage}" style="color: green; margin-bottom: 15px;">
-    <p th:text="${successMessage}"></p>
-</div>
-<div th:if="${errorMessage}" style="color: red; margin-bottom: 15px;">
-    <p th:text="${errorMessage}"></p>
-</div>
+
 <!-- User Form (for both add and edit) -->
 <div class="form-container">
     <h2>User</h2>
+    <div th:if="${successMessage}" class="alert alert-success">
+
+        <p th:text="${successMessage}"></p>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-error">
+
+        <p th:text="${errorMessage}"></p>
+    </div>
     <form th:action="${user.id != null} ? @{/update/{id}(id=${user.id})} : @{/}"
           th:object="${user}"
           method="post">

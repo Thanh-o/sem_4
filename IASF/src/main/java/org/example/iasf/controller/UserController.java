@@ -64,8 +64,16 @@ public class UserController {
 
     // Delete
     @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable Long id) {
+    public String deleteUser(@PathVariable Long id,
+                             RedirectAttributes redirectAttributes) {
+        try {
         userService.deleteUser(id);
+            redirectAttributes.addFlashAttribute("successMessage", "User delete successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error while deleted User: Unable to deleted. A User with name already exists");
+        }
+
         return "redirect:/";
     }
 }
