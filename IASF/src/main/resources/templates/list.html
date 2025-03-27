@@ -152,6 +152,10 @@
     </style>
 </head>
 <body>
+<div class="search-container">
+    <i class="fas fa-search"></i>
+    <input type="text" id="userSearchInput" class="form-control" placeholder="Tìm kiếm người dùng...">
+</div>
 
 <!-- User Form (for both add and edit) -->
 <div class="form-container">
@@ -189,35 +193,60 @@
 <!-- User List -->
 <div class="table-container">
     <h2 style="margin-left: 12px">List of Users</h2>
-    <table>
-        <thead>
+    <table class="table table-hover" id="userTable">
+        <thead class="thead-dark">
         <tr>
-            <th>ID</th>
-            <th>NAME</th>
-            <th>AGE</th>
-            <th>SALARY</th>
-            <th></th>
+            <th scope="col">Tên</th>
+            <th scope="col">Tuổi</th>
+            <th scope="col">Lương</th>
+            <th scope="col">Hành động</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="user : ${users}" >
-            <td th:text="${user.id}"></td>
+        <tr th:each="user : ${users}">
             <td th:text="${user.name}"></td>
             <td th:text="${user.age}"></td>
             <td th:text="${user.salary}"></td>
-            <td class="actions">
-                <a th:href="@{/edit/{id}(id=${user.id})}" class="button edit" style="padding: 12px 25px">Edit</a>
-                <a th:href="@{/delete/{id}(id=${user.id})}"
-                   class="button delete" style="padding: 12px 25px"
-                   onclick="return confirm('Are you sure you want to delete this user?')">Remove</a>
+            <td>
+                <div class="btn-group">
+                    <a th:href="@{/edit/{id}(id=${user.id})}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a th:href="@{/delete/{id}(id=${user.id})}" class="btn btn-danger" onclick="return confirm('Bạn có chắc muốn xóa người dùng này?')">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
             </td>
         </tr>
-        <tr th:if="${users.isEmpty()}">
-            <td colspan="5">No users found</td>
+        <tr th:if="${#lists.isEmpty(users)}">
+            <td colspan="4" class="no-data">Không có người dùng nào</td>
         </tr>
         </tbody>
     </table>
+
 </div>
+<script>
+    document.getElementById('userSearchInput').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#userTable tbody tr:not(.no-data)');
+
+        rows.forEach(row => {
+            const userName = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+            const userAge = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const userSalary = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+
+            if (userName.includes(searchTerm) || userAge.includes(searchTerm) || userSalary.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Kiểm tra nếu không có hàng nào hiển thị, hiển thị thông báo "Không có dữ liệu"
+        const allHidden = Array.from(rows).every(row => row.style.display === 'none');
+        document.querySelector('.no-data').style.display = allHidden && rows.length > 0 ? '' : 'none';
+    });
+</script>
 
 </body>
 </html>
