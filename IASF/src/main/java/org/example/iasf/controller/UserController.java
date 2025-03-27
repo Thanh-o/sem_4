@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/")
@@ -19,22 +20,28 @@ public class UserController {
     }
 
     // List all users
-    @GetMapping("/users")
+    @GetMapping("/")
     public String listUsers(Model model) {
         model.addAttribute("users", userService.getAllUsers());
         model.addAttribute("user", new User()); // For the add form
         return "list";
     }
 
-    // Create - Show form is handled in listUsers
-    @PostMapping("/users")
-    public String addUser(@ModelAttribute User user) {
-        userService.saveUser(user);
-        return "redirect:/users";
+    // Create - Process form
+    @PostMapping("/")
+    public String addUser(@ModelAttribute User user, RedirectAttributes redirectAttributes) {
+        try {
+            userService.saveUser(user);
+            redirectAttributes.addFlashAttribute("successMessage", "User created successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error while creating User: Unable to create. A User with name already exists");
+        }
+        return "redirect:/";
     }
 
     // Update - Show edit form
-    @GetMapping("/users/edit/{id}")
+    @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         model.addAttribute("user", userService.getUserById(id));
         model.addAttribute("users", userService.getAllUsers());
@@ -42,17 +49,23 @@ public class UserController {
     }
 
     // Update - Process form
-    @PostMapping("/users/update/{id}")
-    public String updateUser(@PathVariable Long id, @ModelAttribute User user) {
-        userService.updateUser(id, user);
-        return "redirect:/users";
+    @PostMapping("/update/{id}")
+    public String updateUser(@PathVariable Long id, @ModelAttribute User user,
+                             RedirectAttributes redirectAttributes) {
+        try {
+            userService.updateUser(id, user);
+            redirectAttributes.addFlashAttribute("successMessage", "User updated successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error while updating User: Unable to update. A User with name already exists");
+        }
+        return "redirect:/";
     }
 
     // Delete
-    @GetMapping("/users/delete/{id}")
+    @GetMapping("/delete/{id}")
     public String deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return "redirect:/users";
+        return "redirect:/";
     }
-
 }

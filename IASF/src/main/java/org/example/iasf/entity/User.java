@@ -12,6 +12,7 @@ public class User {
     private Long id;
     @Column( nullable = false)
     private String name;
+
     private int age;
     private int salary;
 }
