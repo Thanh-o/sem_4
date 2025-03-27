@@ -35,7 +35,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute("successMessage", "User created successfully");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
-                    "Error while creating User: Unable to create. A User with name already exists");
+                    "Error while creating User: Unable to create. A User with name '" + user.getName() + "' already exists");
         }
         return "redirect:/";
     }
@@ -57,7 +57,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute("successMessage", "User updated successfully");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
-                    "Error while updating User: Unable to update. A User with name already exists");
+                    "Error while updating User: Unable to update. A User with name '" + user.getName() + "' already exists");
         }
         return "redirect:/";
     }
@@ -67,13 +67,13 @@ public class UserController {
     public String deleteUser(@PathVariable Long id,
                              RedirectAttributes redirectAttributes) {
         try {
-        userService.deleteUser(id);
-            redirectAttributes.addFlashAttribute("successMessage", "User delete successfully");
+            User user = userService.getUserById(id);
+            userService.deleteUser(id);
+            redirectAttributes.addFlashAttribute("successMessage", "User '" + user.getName() + "' deleted successfully");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage",
-                    "Error while deleted User: Unable to deleted. A User with name already exists");
+                    "Error while deleting User: Unable to delete user with ID " + id);
         }
-
         return "redirect:/";
     }
 }
