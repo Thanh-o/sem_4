@@ -54,12 +54,8 @@ public class OrderController {
         Optional<Customer> custOpt = customerService.getCustomerById(customerId);
         custOpt.ifPresent(order::setCustomer);
 
-        // Handle products
-        if (productIds != null) {
-            List<Product> productList = new ArrayList<>();
-            for (Long pid : productIds) {
-                productService.getProductById(pid).ifPresent(productList::add);
-            }
+        if (productIds != null && !productIds.isEmpty()) {
+            List<Product> productList = productService.getProductsByIds(productIds);
             order.setProducts(productList);
         }
 
@@ -94,12 +90,8 @@ public class OrderController {
             Optional<Customer> custOpt = customerService.getCustomerById(customerId);
             custOpt.ifPresent(existingOrder::setCustomer);
 
-            // Cập nhật products
-            if (productIds != null) {
-                List<Product> productList = new ArrayList<>();
-                for (Long pid : productIds) {
-                    productService.getProductById(pid).ifPresent(productList::add);
-                }
+            if (productIds != null && !productIds.isEmpty()) {
+                List<Product> productList = productService.getProductsByIds(productIds);
                 existingOrder.setProducts(productList);
             }
 

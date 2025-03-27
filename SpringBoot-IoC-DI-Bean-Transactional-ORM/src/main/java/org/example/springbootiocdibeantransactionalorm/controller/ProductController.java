@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @Controller
 @RequestMapping("/products")
 public class ProductController {
@@ -48,15 +50,29 @@ public class ProductController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        model.addAttribute("product", productService.getProductById(id));
+        Optional<Product> product = productService.getProductById(id);
+
+        if (product.isEmpty()) {
+            return "redirect:/products?error=ProductNotFound";
+        }
+
+        model.addAttribute("product", product.get());
         model.addAttribute("categories", categoryService.getAllCategories());
         return "product/form";
     }
 
     @PostMapping("/update/{id}")
-    public String updateProduct(@PathVariable Long id, @ModelAttribute Product product) {
-        productService.updateProduct(id, product);
-        return "redirect:/products";
+    public String updateProduct(@PathVariable Long id,
+                                @ModelAttribute Product product,
+                                Model model) {
+        try {
+            productService.updateProduct(id, product);
+            return "redirect:/products?success=ProductUpdated";
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("categories", categoryService.getAllCategories());
+            return "product/form";
+        }
     }
 
     @GetMapping("/delete/{id}")

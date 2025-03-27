@@ -3,11 +3,9 @@ package org.example.springbootiocdibeantransactionalorm.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -22,11 +20,11 @@ public class Order {
     @Column(name = "order_date")
     private LocalDateTime date;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
             name = "order_detail",
             joinColumns = @JoinColumn(name = "order_id"),
@@ -34,11 +32,4 @@ public class Order {
     )
     private List<Product> products = new ArrayList<>();
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
 }
