@@ -22,7 +22,7 @@
             color: #333;
         }
         .form-group {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
         }
@@ -67,26 +67,29 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        .table-container table{
-            background-color: #fff;
 
-        }
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate; /* Change from collapse to separate to allow border-spacing */
+            border-spacing: 0 20px; /* Adds 10px vertical spacing between rows */
+            background-color: #fff;
         }
+
         th, td {
-            padding: 10px;
+            padding: 20px; /* You can increase this value for more internal spacing */
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
+
         th {
-         
+
             color: #333;
         }
         td {
             color: #555;
+
         }
+        tr{  margin-bottom: 20px;}
         .actions a.button {
             padding: 5px 10px;
             border-radius: 3px;
@@ -105,8 +108,7 @@
         h2 {
             font-size: 18px;
             margin: 0 0 15px;
-            color: #333;
-        }
+            }
 
         .alert {
             padding: 5px 20px;
@@ -195,7 +197,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="user : ${users}">
+        <tr th:each="user : ${users}" >
             <td th:text="${user.id}"></td>
             <td th:text="${user.name}"></td>
             <td th:text="${user.age}"></td>
