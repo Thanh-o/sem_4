@@ -43,20 +43,45 @@ public class LoginService {
     }
 
     public User register(String username, String password, String role) {
+        // Validate email format
+        if (!isValidEmail(username)) {
+            throw new IllegalArgumentException("Username must be a valid email address");
+        }
+
+        // Check if username already exists
         if (userRepository.findByUsername(username).isPresent()) {
             throw new RuntimeException("Username already exists");
         }
 
-        if (!role.equalsIgnoreCase("USER") && !role.equalsIgnoreCase("ADMIN")) {
-            throw new RuntimeException("Invalid role. Must be 'USER' or 'ADMIN'");
-        }
+        // Validate and normalize role
+        String normalizedRole = validateAndNormalizeRole(role);
 
+        // Create new user
         User newUser = new User();
-        newUser.setUsername(username);
+        newUser.setUsername(username.toLowerCase()); // Lưu email dưới dạng chữ thường
         newUser.setPassword(passwordEncoder.encode(password));
-        newUser.setRole(role.toUpperCase()); // Lưu role dưới dạng chữ in hoa
+        newUser.setRole(normalizedRole);
 
         return userRepository.save(newUser);
+    }
+
+    private boolean isValidEmail(String email) {
+        // Simple email regex pattern
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        return email != null && email.matches(emailRegex);
+    }
+
+    private String validateAndNormalizeRole(String role) {
+        if (role == null) {
+            throw new IllegalArgumentException("Role cannot be null");
+        }
+
+        String upperCaseRole = role.toUpperCase();
+        if (!upperCaseRole.equals("USER") && !upperCaseRole.equals("ADMIN")) {
+            throw new IllegalArgumentException("Invalid role. Must be 'USER' or 'ADMIN'");
+        }
+
+        return upperCaseRole;
     }
 
     @Transactional

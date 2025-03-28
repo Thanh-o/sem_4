@@ -13,7 +13,6 @@ public class AuthController {
 
     private final LoginService loginService;
 
-
     public AuthController(LoginService loginService) {
         this.loginService = loginService;
     }
