@@ -1,0 +1,75 @@
+<div class="dashboard-wrapper">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>My App</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a routerLink="/" class="nav-item active">
+        <i class="fas fa-home"></i> Dashboard
+      </a>
+      <a routerLink="/users" class="nav-item">
+        <i class="fas fa-users"></i> Users
+      </a>
+      <a (click)="logout()" class="nav-item logout">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <h1>Welcome, {{username}}</h1>
+      <div class="user-info">
+        <span>{{username}}</span>
+        <button (click)="logout()" class="logout-btn">Logout</button>
+      </div>
+    </header>
+
+    <main class="dashboard-content">
+      <section class="overview-section">
+        <h2>Dashboard Overview</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <i class="fas fa-users card-icon"></i>
+            <div class="stat-content">
+              <h3>Total Users</h3>
+              <p class="stat-number">150</p>
+              <span class="stat-change positive">+5% this week</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-shopping-cart card-icon"></i>
+            <div class="stat-content">
+              <h3>Active Sessions</h3>
+              <p class="stat-number">42</p>
+              <span class="stat-change negative">-2% this week</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-chart-line card-icon"></i>
+            <div class="stat-content">
+              <h3>Revenue</h3>
+              <p class="stat-number">$12,450</p>
+              <span class="stat-change positive">+10% this week</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-section">
+          <h3>Quick Actions</h3>
+          <div class="action-buttons">
+            <button class="action-btn" routerLink="/users">Manage Users</button>
+            <button class="action-btn">View Reports</button>
+            <button class="action-btn">Settings</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="dashboard-footer">
+      <p>© 2025 My App. All rights reserved.</p>
+    </footer>
+  </div>
+</div>

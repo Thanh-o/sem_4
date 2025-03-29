@@ -1,9 +1,8 @@
 package org.example.user.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Data;
-
-import java.util.Set;
 
 @Entity
 @Data
@@ -13,6 +12,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(unique = true, nullable = false)
+    @Email(message = "Username must be a valid email address")
     private String username;
     @Column(nullable = false)
     private String password;
