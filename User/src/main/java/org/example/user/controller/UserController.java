@@ -25,7 +25,7 @@ public class UserController {
     public String userEndpoint() {
         return "Chào mừng USER!";
     }
-    
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin")
     public String adminEndpoint() {
