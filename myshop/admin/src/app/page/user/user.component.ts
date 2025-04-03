@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UserService } from './user.service'; // Tạo service mới
+import { trigger, style, animate, transition } from '@angular/animations';
 
 interface User {
   id: number;
@@ -14,7 +15,15 @@ interface User {
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss'],
   standalone: true,
-  imports: [RouterLink, CommonModule]
+  imports: [RouterLink, CommonModule],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('300ms ease-in', style({ opacity: 1, transform: 'translateY(0)' })),
+      ]),
+    ]),
+  ],
 })
 export class UserComponent implements OnInit {
   users: User[] = [];

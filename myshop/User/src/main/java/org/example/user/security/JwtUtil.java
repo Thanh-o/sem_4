@@ -22,7 +22,7 @@ public class JwtUtil {
                 .withClaim("userId", user.getId()) // Thêm userId vào token
                 .withClaim("roles", user.getRole().toString()) // Thêm role vào token
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // Hết hạn sau 1 giờ
+                .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // Hết hạn sau 1 giờ
                 .sign(algorithm);
     }
 

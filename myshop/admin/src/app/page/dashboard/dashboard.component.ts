@@ -35,4 +35,16 @@ export class DashboardComponent {
     localStorage.removeItem('token'); // Xóa token khỏi localStorage
     this.router.navigate(['/login']); // Chuyển hướng về trang login
   }
+
+  navigateToUsers() {
+    this.router.navigate(['/users']);
+  }
+
+  navigateToProducts() {
+    this.router.navigate(['/products']);
+  }
+
+  navigateToOrders() {
+    this.router.navigate(['/orders']);
+  }
 }

@@ -1,11 +1,13 @@
 package org.example.orderservice.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.example.orderservice.dto.OrderRequestDto;
 import org.example.orderservice.dto.OrderResponseDto;
 import org.example.orderservice.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<Object> getAllOrders() {
         try {
@@ -32,10 +35,10 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createOrder(@RequestBody OrderRequestDto requestDto) {
+    public ResponseEntity<Object> createOrder(@RequestBody OrderRequestDto requestDto, HttpServletRequest request) {
         try {
             Long userId = getAuthenticatedUserId();
-            OrderResponseDto responseDto = orderService.createOrder(userId, requestDto);
+            OrderResponseDto responseDto = orderService.createOrder(userId, requestDto, request); // Truyền request vào service
             return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return buildErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -53,6 +56,31 @@ public class OrderController {
                 return buildErrorResponse("Bạn không có quyền xem đơn hàng này!", HttpStatus.FORBIDDEN);
             }
             return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return buildErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/{orderId}")
+    public ResponseEntity<Object> getOrderByIdForAdmin(@PathVariable Long orderId) {
+        try {
+            OrderResponseDto responseDto = orderService.getOrderById(orderId);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return buildErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/admin/{orderId}/status")
+    public ResponseEntity<Object> updateOrderStatusForAdmin(@PathVariable Long orderId, @RequestBody Map<String, String> statusRequest) {
+        try {
+            String newStatus = statusRequest.get("status");
+            OrderResponseDto responseDto  = orderService.updateOrderStatus(orderId, newStatus);
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return buildErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {
             return buildErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
         }
@@ -92,6 +120,7 @@ public class OrderController {
             return buildErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
+
 
     @GetMapping("/my-orders")
     public ResponseEntity<Object> getMyOrders() {

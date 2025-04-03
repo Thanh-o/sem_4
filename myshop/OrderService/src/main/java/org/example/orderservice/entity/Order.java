@@ -18,16 +18,19 @@ public class Order {
     private Long id;
 
     @Column(nullable = false)
-    private Long userId; // Liên kết với User từ UserService
+    private Long userId;
 
     @Column(nullable = false)
-    private double totalPrice; // Tổng giá trị đơn hàng
+    private double totalPrice;
 
     @Column(nullable = false)
-    private LocalDateTime orderDate; // Thời gian đặt hàng
+    private LocalDateTime orderDate;
 
-    private String status; // Trạng thái đơn hàng (PENDING, COMPLETED, CANCELLED, ...)
+    private String status;
+
+    @Column(nullable = false)
+    private String paymentMethod; // "CASH" or "PAYPAL"
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<OrderProduct> products = new HashSet<>(); // Quan hệ One-to-Many với OrderProduct
+    private Set<OrderProduct> products = new HashSet<>();
 }

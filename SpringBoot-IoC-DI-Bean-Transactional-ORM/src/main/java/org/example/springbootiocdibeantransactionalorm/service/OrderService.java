@@ -1,9 +1,7 @@
 package org.example.springbootiocdibeantransactionalorm.service;
 
 import org.example.springbootiocdibeantransactionalorm.entity.Order;
-import org.example.springbootiocdibeantransactionalorm.entity.Product;
 import org.example.springbootiocdibeantransactionalorm.repository.OrderRepository;
-import org.example.springbootiocdibeantransactionalorm.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

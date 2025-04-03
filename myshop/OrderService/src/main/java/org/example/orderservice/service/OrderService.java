@@ -1,19 +1,21 @@
 package org.example.orderservice.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.example.orderservice.dto.*;
 import org.example.orderservice.entity.Order;
 import org.example.orderservice.entity.OrderProduct;
 import org.example.orderservice.repository.OrderProductRepository;
 import org.example.orderservice.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +31,7 @@ public class OrderService {
     private RestTemplate restTemplate;
 
     private static final String PRODUCT_SERVICE_URL = "http://localhost:8082/api/products";
+    private static final String PAYMENT_SERVICE_URL = "http://localhost:8084/api/payments/paypal/process";
 
     public List<OrderResponseDto> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
@@ -38,15 +41,25 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponseDto createOrder(Long userId, OrderRequestDto requestDto) {
+    public OrderResponseDto createOrder(Long userId, OrderRequestDto requestDto, HttpServletRequest request) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID không được null!");
+        }
+
         if (requestDto == null || requestDto.getProductQuantities() == null || requestDto.getProductQuantities().isEmpty()) {
             throw new IllegalArgumentException("Danh sách sản phẩm không được trống!");
+        }
+
+        String paymentMethod = requestDto.getPaymentMethod();
+        if (!isValidPaymentMethod(paymentMethod)) {
+            throw new IllegalArgumentException("Phương thức thanh toán không hợp lệ: " + paymentMethod);
         }
 
         Order order = new Order();
         order.setUserId(userId);
         order.setOrderDate(LocalDateTime.now());
         order.setStatus("PENDING");
+        order.setPaymentMethod(paymentMethod);
 
         Set<OrderProduct> orderProducts = new HashSet<>();
         double totalPrice = 0.0;
@@ -74,13 +87,43 @@ public class OrderService {
             orderProducts.add(orderProduct);
 
             totalPrice += product.getPrice() * quantity;
-            updateProductStock(productId, product.getStock() - quantity);
+            updateProductStock(productId, product.getStock() - quantity, request);
         }
 
         order.setProducts(orderProducts);
         order.setTotalPrice(totalPrice);
 
         Order savedOrder = orderRepository.save(order);
+
+        if ("PAYPAL".equalsIgnoreCase(paymentMethod)) {
+            Map<String, Object> paymentRequest = Map.of(
+                    "orderId", savedOrder.getId(),
+                    "amount", totalPrice
+            );
+
+            HttpHeaders headers = new HttpHeaders();
+            String authorizationHeader = request.getHeader("Authorization");
+            headers.set("Authorization", authorizationHeader);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(paymentRequest, headers);
+
+            ResponseEntity<String> paypalOrderResponse = restTemplate.exchange(
+                    PAYMENT_SERVICE_URL,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+
+            if (paypalOrderResponse.getStatusCode() != HttpStatus.OK || paypalOrderResponse.getBody() == null) {
+                throw new RuntimeException("Failed to initiate PayPal payment: " + paypalOrderResponse.getStatusCode());
+            }
+
+            String paypalOrderId = paypalOrderResponse.getBody();
+            savedOrder.setStatus("PENDING");
+            savedOrder = orderRepository.save(savedOrder);
+        }
+
         return mapToOrderResponseDto(savedOrder);
     }
 
@@ -117,7 +160,8 @@ public class OrderService {
         for (OrderProduct orderProduct : order.getProducts()) {
             ProductDto product = restTemplate.getForObject(PRODUCT_SERVICE_URL + "/" + orderProduct.getProductId(), ProductDto.class);
             if (product != null) {
-                updateProductStock(orderProduct.getProductId(), product.getStock() + orderProduct.getQuantity());
+                // Truyền null cho request vì cancelOrder không được gọi từ controller trực tiếp
+                updateProductStock(orderProduct.getProductId(), product.getStock() + orderProduct.getQuantity(), null);
             }
         }
 
@@ -144,13 +188,37 @@ public class OrderService {
         orderRepository.delete(order); // Cascade sẽ xóa các OrderProduct liên quan
     }
 
-    private void updateProductStock(Long productId, int newStock) {
+    private void updateProductStock(Long productId, int newStock, HttpServletRequest request) {
         ProductDto currentProduct = restTemplate.getForObject(PRODUCT_SERVICE_URL + "/" + productId, ProductDto.class);
         if (currentProduct == null) {
             throw new RuntimeException("Không tìm thấy sản phẩm với ID: " + productId);
         }
+
         currentProduct.setStock(newStock);
-        restTemplate.put(PRODUCT_SERVICE_URL + "/" + productId, currentProduct);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        if (request != null) {
+            String authorizationHeader = request.getHeader("Authorization");
+            if (authorizationHeader != null) {
+                headers.set("Authorization", authorizationHeader);
+            }
+        }
+
+        HttpEntity<ProductDto> entity = new HttpEntity<>(currentProduct, headers);
+
+        try {
+            restTemplate.exchange(
+                    PRODUCT_SERVICE_URL + "/" + productId,
+                    HttpMethod.PUT,
+                    entity,
+                    Void.class
+            );
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("Lỗi khi cập nhật kho sản phẩm " + productId + ": " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
+        } catch (Exception e) {
+            throw new RuntimeException("Không thể cập nhật kho sản phẩm " + productId + ": " + e.getMessage());
+        }
     }
 
     private OrderResponseDto mapToOrderResponseDto(Order order) {
@@ -160,6 +228,7 @@ public class OrderService {
         responseDto.setTotalPrice(order.getTotalPrice());
         responseDto.setOrderDate(order.getOrderDate());
         responseDto.setStatus(order.getStatus());
+        responseDto.setPaymentMethod(order.getPaymentMethod());
 
         List<OrderProductDto> productDtos = order.getProducts().stream()
                 .map(op -> {
@@ -177,4 +246,9 @@ public class OrderService {
     private boolean isValidStatus(String status) {
         return status != null && List.of("PENDING", "COMPLETED", "CANCELLED").contains(status.toUpperCase());
     }
+
+    private boolean isValidPaymentMethod(String paymentMethod) {
+        return paymentMethod != null && List.of("CASH", "PAYPAL").contains(paymentMethod.toUpperCase());
+    }
+
 }

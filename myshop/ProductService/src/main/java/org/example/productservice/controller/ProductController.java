@@ -4,6 +4,7 @@ package org.example.productservice.controller;
 import org.example.productservice.entity.Product;
 import org.example.productservice.service.ProductService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
@@ -28,6 +29,7 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     // ✅ Thêm sản phẩm mới
     @PostMapping
     public ResponseEntity<Product> addProduct(@Valid @RequestBody Product product) {
@@ -72,6 +74,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.isProductInStock(productId, quantity));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     // ✅ Xóa sản phẩm
     @DeleteMapping("/{productId}")
     public ResponseEntity<String> deleteProduct(
