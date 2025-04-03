@@ -7,8 +7,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -31,17 +29,4 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    // Lấy chi tiết tất cả users có role USER
-    public List<User> getAllUserDetails() {
-        return userRepository.findByRole("USER");
-    }
-
-    // Lấy chi tiết tất cả users có role ADMIN
-    public List<User> getAllAdminDetails() {
-        return userRepository.findByRole("ADMIN");
-    }
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-    }
 }

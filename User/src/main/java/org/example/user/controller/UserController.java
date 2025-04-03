@@ -14,34 +14,21 @@ import java.util.List;
 @RequestMapping("/api/user")
 public class UserController {
 
-    private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    @GetMapping("/public")
+    public String publicEndpoint() {
+        return "Đây là endpoint công khai!";
     }
 
-    @GetMapping("/users")
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/user")
+    public String userEndpoint() {
+        return "Chào mừng USER!";
+    }
+    
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUserDetails();
-        return ResponseEntity.ok(users);
-    }
-
-    @GetMapping("/admins")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<User>> getAllAdmins() {
-        List<User> admins = userService.getAllAdminDetails();
-        return ResponseEntity.ok(admins);
-    }
-
-    @GetMapping("/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
-        try {
-            User user = userService.getUserByUsername(username);
-            return ResponseEntity.ok(user);
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("/admin")
+    public String adminEndpoint() {
+        return "Chào mừng ADMIN!";
     }
 }
