@@ -37,6 +37,8 @@
         <th>Date</th>
         <th>Status</th>
         <th>Products</th>
+        <th>Address</th>
+        <th>Description</th>
         <th>Method</th>
         <th>Actions</th>
       </tr>
@@ -47,11 +49,14 @@
         <td data-label="Total Price">{{ order.totalPrice | currency }}</td>
         <td data-label="Date">{{ order.orderDate | date }}</td>
         <td data-label="Status">{{ order.status }}</td>
+
         <td data-label="Products">
             <span *ngFor="let product of order.products; let last = last">
               {{ product.productId }} (x{{ product.quantity }}){{ last ? '' : ', ' }}
             </span>
         </td>
+        <td data-label="Address">{{ order.address }}</td>
+        <td data-label="Description">{{ order.description }}</td>
         <td data-label="Payment Method">{{ order.paymentMethod }}</td>
         <td data-label="Actions">
           <button

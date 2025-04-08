@@ -25,6 +25,18 @@
     <div th:if="${param.logout}">
         <p style="color: green;">Bạn đã đăng xuất thành công</p>
     </div>
+    <div th:if="${param.expired != null}" style="color: red;">
+        <p>Phiên đăng nhập của bạn đã hết hạn do tài khoản được đăng nhập ở nơi khác.</p>
+    </div>
 </form>
+
+<!-- Nút đăng nhập Google và Facebook -->
+<div>
+    <a href="/oauth2/authorization/google">Đăng nhập bằng Google</a>
+</div>
+<div>
+    <a href="/oauth2/authorization/facebook">Đăng nhập bằng Facebook</a>
+</div>
+
 </body>
 </html>

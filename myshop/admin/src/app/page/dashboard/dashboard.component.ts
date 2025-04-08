@@ -47,4 +47,8 @@ export class DashboardComponent {
   navigateToOrders() {
     this.router.navigate(['/orders']);
   }
+
+  navigateToPayments() {
+    this.router.navigate(['/payment-list']);
+  }
 }

@@ -16,6 +16,8 @@ export class OrderCreateComponent implements OnInit {
   selectedProducts: { productId: number; quantity: number }[] = [];
   paymentMethod: string = 'CASH';
   errorMessage: string = '';
+  address: string = '';
+  description: string = '';
   loading: boolean = false;
 
   constructor(private orderService: OrderService, private router: Router) {}
@@ -45,7 +47,6 @@ export class OrderCreateComponent implements OnInit {
     } else {
       this.selectedProducts.push({ productId, quantity: 1 });
     }
-    console.log('Selected Products:', this.selectedProducts);
   }
 
   removeProduct(productId: number): void {
@@ -77,6 +78,11 @@ export class OrderCreateComponent implements OnInit {
       return;
     }
 
+    if (!this.address) {
+      this.errorMessage = 'Please provide a delivery address!';
+      return;
+    }
+
     const productQuantities: { [key: number]: number } = {};
     this.selectedProducts.forEach(p => {
       productQuantities[p.productId] = p.quantity;
@@ -84,7 +90,9 @@ export class OrderCreateComponent implements OnInit {
 
     const orderRequest = {
       productQuantities,
-      paymentMethod: this.paymentMethod
+      paymentMethod: this.paymentMethod,
+      address: this.address,          // Add address to request
+      description: this.description   // Add description to request
     };
 
     this.loading = true;

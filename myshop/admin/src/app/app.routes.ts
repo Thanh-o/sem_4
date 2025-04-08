@@ -10,6 +10,7 @@ import {AddProductComponent} from './page/product/add/add.component';
 import {OrderComponent} from './page/order/order.component';
 import {OrderCreateComponent} from './page/order/order-create/order-create.component';
 import {PaymentComponent} from './page/payment/payment.component';
+import {ListComponent} from './page/payment/list/list.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent, canActivate: [AuthGuard] }, // Bảo vệ route Dashboard
@@ -29,6 +30,11 @@ export const routes: Routes = [
   {
     path: 'payment/:orderId',
     component: PaymentComponent
+  },
+
+  {
+    path: 'payment-list',
+    component: ListComponent
   },
 
   { path: '**', redirectTo: '' }

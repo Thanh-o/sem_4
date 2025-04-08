@@ -30,12 +30,25 @@ public class SecurityP1Application {
                 roleUser.setName("ROLE_USER");
                 roleRepository.save(roleUser);
             }
+            Role roleAdmin = roleRepository.findByName("ROLE_ADMIN");
+            if (roleAdmin == null) {
+                roleAdmin = new Role();
+                roleAdmin.setName("ROLE_ADMIN");
+                roleRepository.save(roleAdmin);
+            }
             if (userRepository.findByUsername("user") == null) {
                 User user = new User();
                 user.setUsername("user");
                 user.setPassword(passwordEncoder.encode("password"));
                 user.setRoles(Set.of(roleUser));
                 userRepository.save(user);
+            }
+            if (userRepository.findByUsername("admin") == null) {
+                User admin = new User();
+                admin.setUsername("admin");
+                admin.setPassword(passwordEncoder.encode("admin123"));
+                admin.setRoles(Set.of(roleAdmin));
+                userRepository.save(admin);
             }
         };
     }

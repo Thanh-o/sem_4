@@ -20,7 +20,7 @@ export class PaymentComponent implements OnInit {
   loading: boolean = true;
   errorMessage: string = '';
   private paymentApiUrl = 'http://localhost:8080/api/payments/paypal/process';
-  private updateStatusApiUrl = 'http://localhost:8080/api/payments/paypal/update-status';
+  private completePaymentApiUrl = 'http://localhost:8080/api/payments/paypal/complete';
 
   constructor(
     private router: Router,
@@ -64,15 +64,25 @@ export class PaymentComponent implements OnInit {
     );
   }
 
-  updatePaymentStatus(orderId: number, status: string, transactionId: string): Observable<void> {
-    return this.http.post<void>(
-      this.updateStatusApiUrl,
-      { orderId, status, transactionId },
-      { headers: this.getHeaders() }
-    ).pipe(catchError(error => {
-      console.error('Update status error:', error);
-      return throwError(() => new Error(error.message || 'Failed to update payment status'));
-    }));
+  completePaypalPayment(orderId: number, paypalOrderId: string): Observable<string> {
+    const params = new URLSearchParams({
+      orderId: orderId.toString(),
+      paypalOrderId: paypalOrderId
+    });
+    return this.http.post(
+      `${this.completePaymentApiUrl}?${params.toString()}`,
+      null,
+      { headers: this.getHeaders(), responseType: 'text' } // Specify text response
+    ).pipe(
+      map(response => {
+        console.log('Complete payment response:', response);
+        return response;
+      }),
+      catchError(error => {
+        console.error('Complete payment error:', error);
+        return throwError(() => new Error(error.message || 'Failed to complete payment'));
+      })
+    );
   }
 
   loadPaypalButton(): void {
@@ -96,16 +106,19 @@ export class PaymentComponent implements OnInit {
             });
         },
         onApprove: (data: any, actions: any) => {
-          console.log('Order approved:', data);
-          return actions.order.capture().then((details: any) => {
-            console.log('Payment captured:', details);
-            return this.updatePaymentStatus(this.orderId!, 'COMPLETED', details.id)
-              .toPromise()
-              .then(() => {
-                alert('Payment completed successfully!');
-                this.router.navigate(['/orders']);
-              });
-          });
+          const paypalOrderId = data.orderID;
+          return this.completePaypalPayment(this.orderId!, paypalOrderId)
+            .toPromise()
+            .then(response => {
+              console.log('Payment completed successfully:', response);
+              alert('Payment completed successfully!');
+              this.router.navigate(['/orders']);
+            })
+            .catch(err => {
+              console.error('Error completing payment:', err);
+              this.errorMessage = 'Failed to complete payment: ' + err.message;
+              this.loading = false;
+            });
         },
         onError: (err: any) => {
           console.error('PayPal error:', err);

@@ -9,15 +9,16 @@ export interface Order {
   userId: number;           // ID của người dùng đặt hàng
   totalPrice: number;       // Tổng giá của đơn hàng
   orderDate: string;        // Ngày đặt hàng (chuỗi ISO date từ backend)
+  address: string;          // Required delivery address
+  description: string;      // Order description
   status: string;           // Trạng thái đơn hàng (PENDING, COMPLETED, CANCELLED)
-  paymentMethod:string;
+  paymentMethod: string;    // Payment method
   products: OrderProduct[]; // Danh sách sản phẩm trong đơn hàng
 }
 
 export interface OrderProduct {
   productId: number;        // ID của sản phẩm
-  quantity: number;
-  // Số lượng sản phẩm trong đơn hàng
+  quantity: number;         // Số lượng sản phẩm trong đơn hàng
 }
 
 export interface Product {
@@ -26,6 +27,14 @@ export interface Product {
   price: number;            // Giá sản phẩm
   stock: number;            // Số lượng tồn kho
   description?: string;     // Mô tả sản phẩm (optional)
+}
+
+// Define the order request interface
+export interface OrderRequest {
+  productQuantities: { [key: number]: number };
+  paymentMethod: string;
+  address: string;
+  description: string;
 }
 
 @Injectable({
@@ -55,7 +64,7 @@ export class OrderService {
       .pipe(catchError(this.handleError));
   }
 
-// API chỉ dành cho ADMIN
+  // API chỉ dành cho ADMIN
   getOrderByIdForAdmin(orderId: number): Observable<Order> {
     return this.http.get<Order>(`${this.apiUrl}/admin/${orderId}`, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
@@ -76,8 +85,8 @@ export class OrderService {
       .pipe(catchError(this.handleError));
   }
 
-  // Tạo đơn hàng mới
-  createOrder(orderRequest: { productQuantities: { [key: number]: number }, paymentMethod: string }): Observable<Order> {
+  // Tạo đơn hàng mới - Updated with new interface
+  createOrder(orderRequest: OrderRequest): Observable<Order> {
     return this.http.post<Order>(
       `${this.apiUrl}/create`,
       orderRequest,

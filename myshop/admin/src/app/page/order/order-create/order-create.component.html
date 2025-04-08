@@ -73,6 +73,30 @@
     <p>Total Price: {{ calculateTotalPrice() | currency }}</p>
   </div>
 
+  <div class="order-details">
+    <h3>Order Details</h3>
+    <div class="form-group">
+      <label for="address">Delivery Address *</label>
+      <input
+        type="text"
+        id="address"
+        class="form-control"
+        [(ngModel)]="address"
+        required
+        placeholder="Enter delivery address"
+      >
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        class="form-control"
+        [(ngModel)]="description"
+        placeholder="Enter order description (optional)"
+      ></textarea>
+    </div>
+  </div>
+
   <div class="payment-method">
     <h3>Payment Method</h3>
     <div class="radio-group">
