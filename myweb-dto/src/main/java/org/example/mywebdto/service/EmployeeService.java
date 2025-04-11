@@ -24,24 +24,36 @@ public class EmployeeService {
         employee = employeeRepository.save(employee);
         return employeeMapper.toDto(employee);
     }
+
     public EmployeeDto getEmployeeById(Long id) {
-        Employee employee = employeeRepository.findById(id).orElseThrow();
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
         return employeeMapper.toDto(employee);
     }
+
     public EmployeeDto updateEmployee(Long id, EmployeeDto employeeDto) {
-        Employee employee = employeeRepository.findById(id).orElseThrow();
-        String[] names= employeeDto.getFullName().split(" ");
-        employee.setFirstName(names[0]);
-        employee.setLastName(names[1]);
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+        // Use the mapper instead of manual splitting for consistency
+        Employee updatedEmployee = employeeMapper.toEntity(employeeDto);
+        employee.setFirstName(updatedEmployee.getFirstName());
+        employee.setLastName(updatedEmployee.getLastName());
         employee.setEmail(employeeDto.getEmail());
         employeeRepository.save(employee);
         return employeeMapper.toDto(employee);
     }
+
     public void deleteEmployee(Long id) {
+        if (!employeeRepository.existsById(id)) {
+            throw new RuntimeException("Employee not found with id: " + id);
+        }
         employeeRepository.deleteById(id);
     }
+
     public List<EmployeeDto> getAllEmployees() {
         List<Employee> employees = employeeRepository.findAll();
-        return employees.stream().map(employeeMapper::toDto).collect(Collectors.toList());
+        return employees.stream()
+                .map(employeeMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
