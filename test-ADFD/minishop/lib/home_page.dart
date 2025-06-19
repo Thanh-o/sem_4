@@ -85,6 +85,46 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.purple[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const IconButton(
+              icon: Icon(Icons.home, color: Colors.white),
+              onPressed: null, // Disable button if it's just decorative
+              tooltip: 'HOME',
+            ),
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search, color: Colors.grey),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.shopping_bag, color: Colors.grey), // Using shopping_bag for briefcase-like icon
+            onPressed: () {},
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircleAvatar(
+              radius: 14,
+              backgroundColor: Colors.grey[300],
+              child: const Icon(Icons.person, color: Colors.grey, size: 16),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.add, color: Colors.grey),
+            onPressed: () {},
+          ),
+        ],
+      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -126,9 +166,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                       child: TextField(
                         decoration: const InputDecoration(
-                          hintText: 'Q, Search your destination',
+                          hintText: ' Search your destination',
                           hintStyle: TextStyle(color: Colors.grey),
-                          prefixIcon: Icon(Icons.search, color: Colors.grey),
+                          prefixIcon: Icon(Icons.search, color: Colors.black),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.all(12),
                         ),
@@ -154,9 +194,11 @@ class _HomePageState extends State<HomePage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _buildCategoryButton(Icons.hotel, 'Hotels', Colors.pink[100]!),
-                            _buildCategoryButton(Icons.flight, 'Flights', Colors.blue[100]!),
-                            _buildCategoryButton(Icons.apps, 'All', Colors.green[100]!),
+                            _buildCategoryButton(Icons.business, 'Hotels', const Color(0xFFFFF3E6)),
+                            const SizedBox(width: 10),
+                            _buildCategoryButton(Icons.flight, 'Flights', const Color(0xFFFFE0E6)),
+                            const SizedBox(width: 10),
+                            _buildCategoryButton(Icons.apps, 'All', const Color(0xFFE6FFFB)),
                           ],
                         ),
                         const SizedBox(height: 20),
@@ -316,28 +358,22 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: const Color(0xFF6B46C1),
-        child: const Icon(Icons.home, color: Colors.white),
-        shape: const CircleBorder(),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
   Widget _buildCategoryButton(IconData icon, String label, Color color) {
     return Expanded(
       child: Container(
+        height: 80,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.grey[700], size: 20),
-            const SizedBox(height: 8),
+            Icon(icon, color: Colors.grey[600], size: 32),
+            const SizedBox(height: 6),
             Text(
               label,
               style: const TextStyle(
