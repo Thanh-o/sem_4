@@ -84,222 +84,198 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.purple[200],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const IconButton(
-              icon: Icon(Icons.home, color: Colors.white),
-              onPressed: null, // Disable button if it's just decorative
-              tooltip: 'HOME',
-            ),
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF6B46C1), Color(0xFF8E44AD)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.grey),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.shopping_bag, color: Colors.grey), // Using shopping_bag for briefcase-like icon
-            onPressed: () {},
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              radius: 14,
-              backgroundColor: Colors.grey[300],
-              child: const Icon(Icons.person, color: Colors.grey, size: 16),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add, color: Colors.grey),
-            onPressed: () {},
-          ),
-        ],
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF6B46C1), Color(0xFF8E44AD)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Hi Guy!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+      child: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Hi Guy!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Where are you going next?',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: TextField(
-                        decoration: const InputDecoration(
-                          hintText: ' Search your destination',
-                          hintStyle: TextStyle(color: Colors.grey),
-                          prefixIcon: Icon(Icons.search, color: Colors.black),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(12),
-                        ),
-                        onChanged: (value) {},
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Content
-              Expanded(
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                   ),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Category Buttons
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Where are you going next?',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: ' Search your destination',
+                        hintStyle: TextStyle(color: Colors.grey),
+                        prefixIcon: Icon(Icons.search, color: Colors.black),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(12),
+                      ),
+                      onChanged: (value) {},
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Content
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Category Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildCategoryButton(Icons.business, 'Hotels', const Color(0xFFFFF3E6)),
+                          const SizedBox(width: 10),
+                          _buildCategoryButton(Icons.flight, 'Flights', const Color(0xFFFFE0E6)),
+                          const SizedBox(width: 10),
+                          _buildCategoryButton(Icons.apps, 'All', const Color(0xFFE6FFFB)),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      // Popular Destinations
+                      const Text(
+                        'Popular Destinations',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : errorMessage.isNotEmpty
+                          ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _buildCategoryButton(Icons.business, 'Hotels', const Color(0xFFFFF3E6)),
-                            const SizedBox(width: 10),
-                            _buildCategoryButton(Icons.flight, 'Flights', const Color(0xFFFFE0E6)),
-                            const SizedBox(width: 10),
-                            _buildCategoryButton(Icons.apps, 'All', const Color(0xFFE6FFFB)),
+                            const Icon(
+                              Icons.error_outline,
+                              color: Colors.red,
+                              size: 40,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              errorMessage,
+                              style: const TextStyle(color: Colors.red),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            ElevatedButton(
+                              onPressed: getAllPlace,
+                              child: const Text('Retry'),
+                            ),
                           ],
                         ),
-                        const SizedBox(height: 20),
-                        // Popular Destinations
-                        const Text(
-                          'Popular Destinations',
+                      )
+                          : places.isEmpty
+                          ? const Center(
+                        child: Text(
+                          'No destinations found',
                           style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            fontSize: 16,
+                            color: Colors.grey,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : errorMessage.isNotEmpty
-                            ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                color: Colors.red,
-                                size: 40,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                errorMessage,
-                                style: const TextStyle(color: Colors.red),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: getAllPlace,
-                                child: const Text('Retry'),
-                              ),
-                            ],
-                          ),
-                        )
-                            : places.isEmpty
-                            ? const Center(
-                          child: Text(
-                            'No destinations found',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
+                      )
+                          : GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.8,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                        ),
+                        itemCount: places.length,
+                        itemBuilder: (context, index) {
+                          final place = places[index];
+                          return Card(
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          ),
-                        )
-                            : GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.8,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                          ),
-                          itemCount: places.length,
-                          itemBuilder: (context, index) {
-                            final place = places[index];
-                            return Card(
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Stack(
                                 children: [
-                                  ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                                    child: place.imageUrl.isNotEmpty
-                                        ? Image.network(
-                                      place.imageUrl,
-                                      height: 120,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Container(
-                                          height: 120,
-                                          color: Colors.grey[300],
-                                          child: const Icon(
-                                            Icons.image_not_supported,
-                                            color: Colors.grey,
-                                            size: 40,
-                                          ),
-                                        );
-                                      },
-                                    )
-                                        : Container(
-                                      height: 120,
-                                      color: Colors.grey[300],
-                                      child: const Icon(
-                                        Icons.place,
-                                        color: Colors.grey,
-                                        size: 40,
+                                  // Background Image
+                                  place.imageUrl.isNotEmpty
+                                      ? Image.network(
+                                    place.imageUrl,
+                                    height: double.infinity,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        height: double.infinity,
+                                        width: double.infinity,
+                                        color: Colors.grey[300],
+                                        child: const Icon(
+                                          Icons.image_not_supported,
+                                          color: Colors.grey,
+                                          size: 40,
+                                        ),
+                                      );
+                                    },
+                                  )
+                                      : Container(
+                                    height: double.infinity,
+                                    width: double.infinity,
+                                    color: Colors.grey[300],
+                                    child: const Icon(
+                                      Icons.place,
+                                      color: Colors.grey,
+                                      size: 40,
+                                    ),
+                                  ),
+                                  // Gradient Overlay for better text visibility
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.transparent,
+                                          Colors.black.withOpacity(0.7),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                  // Content Overlay
+                                  Positioned(
+                                    bottom: 8,
+                                    left: 8,
+                                    right: 8,
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
@@ -308,11 +284,12 @@ class _HomePageState extends State<HomePage> {
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
+                                            color: Colors.white,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
+                                        const SizedBox(height: 4),
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
@@ -329,7 +306,7 @@ class _HomePageState extends State<HomePage> {
                                                   style: const TextStyle(
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w500,
-                                                    color: Colors.black87,
+                                                    color: Colors.white,
                                                   ),
                                                 ),
                                               ],
@@ -346,18 +323,19 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ],
                               ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+
     );
   }
 
