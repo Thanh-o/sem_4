@@ -54,42 +54,76 @@ class _MainScreenState extends State<MainScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Home Button
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: Colors.purple[200],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.home,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                _buildNavItem(
+                  icon: Icons.home,
+                  label: 'Home',
+                  isActive: currentIndex == 0,
+                  onTap: () => setState(() => currentIndex = 0),
                 ),
                 // Search Button
-                IconButton(
-                  icon: const Icon(Icons.search, color: Colors.grey, size: 24),
-                  onPressed: () {},
+                _buildNavItem(
+                  icon: Icons.search,
+                  label: 'Search',
+                  isActive: currentIndex == 1,
+                  onTap: () => setState(() => currentIndex = 1),
                 ),
                 // Shopping Bag Button
-                IconButton(
-                  icon: const Icon(Icons.shopping_bag, color: Colors.grey, size: 24),
-                  onPressed: () {},
+                _buildNavItem(
+                  icon: Icons.shopping_bag,
+                  label: 'Shop',
+                  isActive: currentIndex == 2,
+                  onTap: () => setState(() => currentIndex = 2),
                 ),
-                // Profile Avatar
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: Colors.grey[300],
-                  child: const Icon(Icons.person, color: Colors.grey, size: 18),
-                ),
-                // Add Button
-                IconButton(
-                  icon: const Icon(Icons.add, color: Colors.grey, size: 24),
-                  onPressed: () {},
+                // Profile Button
+                _buildNavItem(
+                  icon: Icons.person,
+                  label: 'Profile',
+                  isActive: currentIndex == 3,
+                  onTap: () => setState(() => currentIndex = 3),
                 ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required IconData icon,
+    required String label,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.blue : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isActive ? Colors.white : Colors.grey,
+              size: 24,
+            ),
+            if (isActive) ...[
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

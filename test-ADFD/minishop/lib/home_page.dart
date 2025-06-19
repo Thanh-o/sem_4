@@ -271,7 +271,17 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                   ),
-                                  // Content Overlay
+                                  // Heart Icon - Top Right
+                                  const Positioned(
+                                    top: 12,
+                                    right: 12,
+                                    child: Icon(
+                                      Icons.favorite,
+                                      color: Colors.red,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  // Content Overlay - Bottom
                                   Positioned(
                                     bottom: 8,
                                     left: 8,
@@ -289,35 +299,38 @@ class _HomePageState extends State<HomePage> {
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                const Icon(
-                                                  Icons.star,
-                                                  color: Colors.amber,
-                                                  size: 16,
+                                        const SizedBox(height: 8),
+                                        // Rating with semi-transparent background
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.5),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(
+                                                Icons.star,
+                                                color: Colors.amber,
+                                                size: 20,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                place.rating.toStringAsFixed(1),
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.black,
                                                 ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  place.rating.toStringAsFixed(1),
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const Icon(
-                                              Icons.favorite,
-                                              color: Colors.red,
-                                              size: 18,
-                                            ),
-                                          ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
+                                        const SizedBox(height: 10),
                                       ],
                                     ),
                                   ),
